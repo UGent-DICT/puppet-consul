@@ -2,7 +2,7 @@ require 'json'
 require 'net/http'
 require 'uri'
 Puppet::Type.type(:consul_prepared_query).provide(
-  :default
+  :default,
 ) do
   mk_resource_methods
 

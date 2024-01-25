@@ -10,29 +10,29 @@ describe Puppet::Type.type(:consul_acl) do
   }
 
   it 'fails if type is not client or management' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_acl).new(name: 'foo', type: 'blah')
-    end.to raise_error(Puppet::Error, %r{Invalid value})
+    }.to raise_error(Puppet::Error, %r{Invalid value})
   end
 
   it 'fails if rules is not a hash' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_acl).new(name: 'foo', rules: 'blah')
-    end.to raise_error(Puppet::Error, %r{ACL rules must be provided as a hash})
+    }.to raise_error(Puppet::Error, %r{ACL rules must be provided as a hash})
   end
 
   it 'fails if no name is provided' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_acl).new(type: 'client')
-    end.to raise_error(Puppet::Error, %r{Title or name must be provided})
+    }.to raise_error(Puppet::Error, %r{Title or name must be provided})
   end
 
   context 'with type and rules provided' do
-    before do
+    before(:each) do
       @acl = Puppet::Type.type(:consul_acl).new(
         name: 'testing',
         type: 'management',
-        rules: samplerules
+        rules: samplerules,
       )
     end
 

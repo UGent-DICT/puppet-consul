@@ -81,7 +81,7 @@ end
 describe 'consul::sorted_json', type: :puppet_function do
   let(:test_hash) { { 'z' => 3, 'a' => '1', 'p' => '2', 's' => '-7' } }
 
-  before do
+  before(:each) do
     @json = subject.execute(test_hash, true)
   end
 
@@ -121,10 +121,10 @@ describe 'consul::sorted_json', type: :puppet_function do
     let(:nested_test_hash) do
       { 'z' => [{ 'l' => 3, 'k' => '2', 'j' => '1' }],
         'a' => { 'z' => '3', 'x' => '1', 'y' => '2' },
-        'p' => %w[9 8 7] }
+        'p' => ['9', '8', '7'] }
     end
 
-    before do
+    before(:each) do
       @json = subject.execute(nested_test_hash, true)
     end
 

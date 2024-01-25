@@ -2,17 +2,17 @@ require 'spec_helper'
 
 describe Puppet::Type.type(:consul_key_value) do
   it 'fails if no name is provided' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_key_value).new(type: 'client')
-    end.to raise_error(Puppet::Error, %r{Title or name must be provided})
+    }.to raise_error(Puppet::Error, %r{Title or name must be provided})
   end
 
   context 'with query parameters provided' do
-    before do
+    before(:each) do
       @key_value = Puppet::Type.type(:consul_key_value).new(
         name: 'sample/key',
         value: 'sampleValue',
-        flags: 1
+        flags: 1,
       )
     end
 

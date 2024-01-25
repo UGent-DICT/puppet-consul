@@ -30,12 +30,12 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"check" *: *\{}). \
-            with_content(%r{"interval" *: *"30s"}). \
-            with_content(%r{"script" *: *"true"})
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"check" *: *\{}) \
+            .with_content(%r{"interval" *: *"30s"}) \
+            .with_content(%r{"script" *: *"true"})
         }
       end
 
@@ -48,12 +48,12 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"check" *: *\{}). \
-            with_content(%r{"interval" *: *"30s"}). \
-            with_content(%r{"args" *: *\[ *"sh", *"-c", *"true", *"1", *"2" *\]})
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"check" *: *\{}) \
+            .with_content(%r{"interval" *: *"30s"}) \
+            .with_content(%r{"args" *: *\[ *"sh", *"-c", *"true", *"1", *"2" *\]})
         }
       end
 
@@ -67,13 +67,13 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"check" *: *\{}). \
-            with_content(%r{"interval" *: *"30s"}). \
-            with_content(%r{"script" *: *"true"}). \
-            with_content(%r{"service_id" *: *"my_service"})
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"check" *: *\{}) \
+            .with_content(%r{"interval" *: *"30s"}) \
+            .with_content(%r{"script" *: *"true"}) \
+            .with_content(%r{"service_id" *: *"my_service"})
         }
       end
 
@@ -87,13 +87,13 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"interval" *: *"30s"}). \
-            with_content(%r{"script" *: *"true"}). \
-            with_content(%r{"token" *: *"too-cool-for-this-script"}). \
-            that_notifies('Class[consul::reload_service]') \
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"interval" *: *"30s"}) \
+            .with_content(%r{"script" *: *"true"}) \
+            .with_content(%r{"token" *: *"too-cool-for-this-script"}) \
+            .that_notifies('Class[consul::reload_service]') \
         }
       end
 
@@ -106,12 +106,12 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"check" *: *\{}). \
-            with_content(%r{"interval" *: *"30s"}). \
-            with_content(%r{"http" *: *"localhost"}) \
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"check" *: *\{}) \
+            .with_content(%r{"interval" *: *"30s"}) \
+            .with_content(%r{"http" *: *"localhost"}) \
         }
       end
 
@@ -125,13 +125,13 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"check" *: *\{}). \
-            with_content(%r{"interval" *: *"30s"}). \
-            with_content(%r{"http" *: *"localhost"}). \
-            with_content(%r{"service_id" *: *"my_service"})
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"check" *: *\{}) \
+            .with_content(%r{"interval" *: *"30s"}) \
+            .with_content(%r{"http" *: *"localhost"}) \
+            .with_content(%r{"service_id" *: *"my_service"})
         }
       end
 
@@ -145,13 +145,13 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"interval" *: *"30s"}). \
-            with_content(%r{"http" *: *"localhost"}). \
-            with_content(%r{"token" *: *"too-cool-for-this-http"}). \
-            that_notifies('Class[consul::reload_service]') \
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"interval" *: *"30s"}) \
+            .with_content(%r{"http" *: *"localhost"}) \
+            .with_content(%r{"token" *: *"too-cool-for-this-http"}) \
+            .that_notifies('Class[consul::reload_service]') \
         }
       end
 
@@ -164,9 +164,9 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            without_content(%r{"service_id"}). \
-            without_content(%r{"notes"})
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .without_content(%r{"service_id"}) \
+            .without_content(%r{"notes"})
         }
       end
 
@@ -178,11 +178,11 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"check" *: *\{}). \
-            with_content(%r{"ttl" *: *"30s"})
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"check" *: *\{}) \
+            .with_content(%r{"ttl" *: *"30s"})
         }
       end
 
@@ -195,12 +195,12 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"check" *: *\{}). \
-            with_content(%r{"ttl" *: *"30s"}). \
-            with_content(%r{"service_id" *: *"my_service"})
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"check" *: *\{}) \
+            .with_content(%r{"ttl" *: *"30s"}) \
+            .with_content(%r{"service_id" *: *"my_service"})
         }
       end
 
@@ -213,12 +213,12 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"ttl" *: *"30s"}). \
-            with_content(%r{"token" *: *"too-cool-for-this-ttl"}). \
-            that_notifies('Class[consul::reload_service]') \
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"ttl" *: *"30s"}) \
+            .with_content(%r{"token" *: *"too-cool-for-this-ttl"}) \
+            .that_notifies('Class[consul::reload_service]') \
         }
       end
 
@@ -231,12 +231,12 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"check" *: *\{}). \
-            with_content(%r{"tcp" *: *"localhost:80"}). \
-            with_content(%r{"interval" *: *"30s"})
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"check" *: *\{}) \
+            .with_content(%r{"tcp" *: *"localhost:80"}) \
+            .with_content(%r{"interval" *: *"30s"})
         }
       end
 
@@ -249,11 +249,11 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"check" *: *\{}). \
-            with_content(%r{"grpc" *: *"localhost:80"})
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"check" *: *\{}) \
+            .with_content(%r{"grpc" *: *"localhost:80"})
         }
       end
 
@@ -266,12 +266,12 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"check" *: *\{}). \
-            with_content(%r{"grpc" *: *"localhost:80"}). \
-            with_content(%r{"interval" *: *"30s"})
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"check" *: *\{}) \
+            .with_content(%r{"grpc" *: *"localhost:80"}) \
+            .with_content(%r{"interval" *: *"30s"})
         }
       end
 
@@ -285,13 +285,13 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"check" *: *\{}). \
-            with_content(%r{"tcp" *: *"localhost:80"}). \
-            with_content(%r{"interval" *: *"30s"}). \
-            with_content(%r{"service_id" *: *"my_service"})
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"check" *: *\{}) \
+            .with_content(%r{"tcp" *: *"localhost:80"}) \
+            .with_content(%r{"interval" *: *"30s"}) \
+            .with_content(%r{"service_id" *: *"my_service"})
         }
       end
 
@@ -305,13 +305,13 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json'). \
-            with_content(%r{"id" *: *"my_check"}). \
-            with_content(%r{"name" *: *"my_check"}). \
-            with_content(%r{"tcp" *: *"localhost:80"}). \
-            with_content(%r{"interval" *: *"30s"}). \
-            with_content(%r{"token" *: *"too-cool-for-this-script"}). \
-            that_notifies('Class[consul::reload_service]') \
+          is_expected.to contain_file('/etc/consul/check_my_check.json') \
+            .with_content(%r{"id" *: *"my_check"}) \
+            .with_content(%r{"name" *: *"my_check"}) \
+            .with_content(%r{"tcp" *: *"localhost:80"}) \
+            .with_content(%r{"interval" *: *"30s"}) \
+            .with_content(%r{"token" *: *"too-cool-for-this-script"}) \
+            .that_notifies('Class[consul::reload_service]') \
         }
       end
 
@@ -430,8 +430,8 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_aa_bb.json'). \
-            with_content(%r{"id" *: *"aa/bb"})
+          is_expected.to contain_file('/etc/consul/check_aa_bb.json') \
+            .with_content(%r{"id" *: *"aa/bb"})
         }
       end
 
@@ -445,8 +445,8 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to contain_file('/etc/consul/check_aa_bb_cc.json'). \
-            with_content(%r{"id" *: *"aa/bb/cc"})
+          is_expected.to contain_file('/etc/consul/check_aa_bb_cc.json') \
+            .with_content(%r{"id" *: *"aa/bb/cc"})
         }
       end
     end

@@ -3,7 +3,7 @@ require 'net/http'
 require 'pp'
 require 'uri'
 Puppet::Type.type(:consul_acl).provide(
-  :default
+  :default,
 ) do
   mk_resource_methods
 

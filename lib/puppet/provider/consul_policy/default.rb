@@ -4,7 +4,7 @@ require 'uri'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'puppet_x', 'consul', 'acl_base.rb'))
 
 Puppet::Type.type(:consul_policy).provide(
-  :default
+  :default,
 ) do
   mk_resource_methods
 
@@ -43,7 +43,7 @@ Puppet::Type.type(:consul_policy).provide(
     encoded = []
 
     rules.each do |rule|
-      if %w[acl operator keyring].include?(rule['resource'])
+      if ['acl', 'operator', 'keyring'].include?(rule['resource'])
         encoded.push("#{rule['resource']} = \"#{rule['disposition']}\"")
       else
         encoded.push("#{rule['resource']} \"#{rule['segment']}\" {\n  policy = \"#{rule['disposition']}\"\n}")
@@ -70,15 +70,14 @@ Puppet::Type.type(:consul_policy).provide(
     @rules_encoded = rules_encoded
     @existing_policy = existing_policy
 
-    if existing_policy
-      @property_hash = {
-        id: existing_policy.id,
-        description: existing_policy.description,
-        datacenters: existing_policy.datacenters
-      }
+    return unless existing_policy
+    @property_hash = {
+      id: existing_policy.id,
+      description: existing_policy.description,
+      datacenters: existing_policy.datacenters
+    }
 
-      @property_hash[:rules] = resource[:rules] if rules_encoded == existing_policy.rules
-    end
+    @property_hash[:rules] = resource[:rules] if rules_encoded == existing_policy.rules
   end
 
   def exists?
@@ -110,14 +109,13 @@ Puppet::Type.type(:consul_policy).provide(
       Puppet.notice("Created Consul ACL policy #{policy.name} with ID #{policy.id}")
     end
 
-    if @existing_policy && (@existing_policy.description != @resource[:description] || @existing_policy.datacenters != @resource[:datacenters] || @existing_policy.rules != @rules_encoded)
-      @existing_policy.description = @resource[:description]
-      @existing_policy.datacenters = @resource[:datacenters]
-      @existing_policy.rules = @rules_encoded
+    return unless @existing_policy && (@existing_policy.description != @resource[:description] || @existing_policy.datacenters != @resource[:datacenters] || @existing_policy.rules != @rules_encoded)
+    @existing_policy.description = @resource[:description]
+    @existing_policy.datacenters = @resource[:datacenters]
+    @existing_policy.rules = @rules_encoded
 
-      @client.update_policy(@existing_policy)
-      Puppet.notice("Updated Consul ACL policy #{@existing_policy.name} (ID: #{@existing_policy.id})")
-    end
+    @client.update_policy(@existing_policy)
+    Puppet.notice("Updated Consul ACL policy #{@existing_policy.name} (ID: #{@existing_policy.id})")
   end
 
   def self.reset

@@ -107,7 +107,7 @@ describe 'consul' do
       end
 
       # hashicorp repo is not supported on Arch Linux/SLES
-      context 'When asked to manage the repo and to install as package', unless: %w[Archlinux SLES Suse].include?(facts[:os]['family']) do
+      context 'When asked to manage the repo and to install as package', unless: ['Archlinux', 'SLES', 'Suse'].include?(facts[:os]['family']) do
         let(:params) do
           {
             install_method: 'package',
@@ -440,7 +440,7 @@ describe 'consul' do
           is_expected.to contain_file('consul config').with(
             owner: 'custom_consul_user',
             group: 'custom_consul_group',
-            mode: '0600'
+            mode: '0600',
           )
         }
       end
@@ -467,8 +467,8 @@ describe 'consul' do
         end
 
         it {
-          is_expected.to contain_exec('reload consul service').
-            with_command('consul reload -http-addr=127.0.0.1:8500')
+          is_expected.to contain_exec('reload consul service')
+            .with_command('consul reload -http-addr=127.0.0.1:8500')
         }
       end
 
@@ -490,8 +490,8 @@ describe 'consul' do
         end
 
         it {
-          is_expected.to contain_exec('reload consul service').
-            with_command('consul reload -http-addr=consul.example.com:9999')
+          is_expected.to contain_exec('reload consul service')
+            .with_command('consul reload -http-addr=consul.example.com:9999')
         }
       end
 
@@ -508,8 +508,8 @@ describe 'consul' do
         end
 
         it {
-          is_expected.to contain_exec('reload consul service').
-            with_command('consul reload -http-addr=192.168.34.56:8500')
+          is_expected.to contain_exec('reload consul service')
+            .with_command('consul reload -http-addr=192.168.34.56:8500')
         }
       end
 

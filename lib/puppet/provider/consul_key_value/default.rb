@@ -3,7 +3,7 @@ require 'net/http'
 require 'uri'
 require 'base64'
 Puppet::Type.type(:consul_key_value).provide(
-  :default
+  :default,
 ) do
   mk_resource_methods
 

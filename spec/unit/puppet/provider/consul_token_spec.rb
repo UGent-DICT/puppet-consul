@@ -17,7 +17,7 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
         ],
         api_tries: 3,
         ensure: 'present'
-      }
+      },
     )
   end
 
@@ -34,10 +34,10 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/acl/tokens').
-          with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' }).
-          to_return(status: 400, body: '', headers: {}).times(2).then.
-          to_return(status: 200, body: JSON.dump(response), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/acl/tokens')
+          .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' })
+          .to_return(status: 400, body: '', headers: {}).times(2).then
+          .to_return(status: 200, body: JSON.dump(response), headers: {})
 
         described_class.prefetch(resources)
         described_class.reset
@@ -60,9 +60,9 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/acl/tokens').
-          with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(response), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/acl/tokens')
+          .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(response), headers: {})
 
         described_class.prefetch(resources)
         described_class.reset
@@ -74,9 +74,9 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
   describe '.flush' do
     context 'creation' do
       it 'creates token if not existing' do
-        stub_request(:get, 'http://localhost:8500/v1/acl/tokens').
-          with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump([]), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/acl/tokens')
+          .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump([]), headers: {})
 
         response = {
           'AccessorID' => 'f28febb0-8746-4b6a-b6bf-03cde92005a1',
@@ -85,10 +85,10 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           'Policies' => []
         }
 
-        create_response_stub = stub_request(:put, 'http://localhost:8500/v1/acl/token').
-                               with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' },
-                                    body: '{"AccessorID":"123123-1234-1234-1234-123456789","Description":"test_token","Local":false,"Policies":[{"Name":"test_policy_1"},{"ID":"652f27c9-d08d-412b-8985-9becc9c42fb2"}]}').
-                               to_return(status: 200, body: JSON.dump(response), headers: {})
+        create_response_stub = stub_request(:put, 'http://localhost:8500/v1/acl/token')
+                               .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' },
+                                    body: '{"AccessorID":"123123-1234-1234-1234-123456789","Description":"test_token","Local":false,"Policies":[{"Name":"test_policy_1"},{"ID":"652f27c9-d08d-412b-8985-9becc9c42fb2"}]}')
+                               .to_return(status: 200, body: JSON.dump(response), headers: {})
 
         described_class.prefetch(resources)
         described_class.reset
@@ -116,14 +116,14 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
             ],
             api_tries: 3,
             ensure: 'present'
-          }
+          },
         )
       end
 
       it 'sets secret_id if present' do
-        stub_request(:get, 'http://localhost:8500/v1/acl/tokens').
-          with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump([]), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/acl/tokens')
+          .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump([]), headers: {})
 
         response = {
           'AccessorID' => 'f28febb0-8746-4b6a-b6bf-03cde92005a1',
@@ -132,10 +132,10 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           'Policies' => []
         }
 
-        create_response_stub = stub_request(:put, 'http://localhost:8500/v1/acl/token').
-                               with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' },
-                                    body: '{"AccessorID":"123123-1234-1234-1234-123456789","Description":"test_token","Local":false,"Policies":[{"Name":"test_policy_1"},{"ID":"652f27c9-d08d-412b-8985-9becc9c42fb2"}],"SecretID":"11cfc2b9-a823-495d-8d6e-4392f182670e"}').
-                               to_return(status: 200, body: JSON.dump(response), headers: {})
+        create_response_stub = stub_request(:put, 'http://localhost:8500/v1/acl/token')
+                               .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' },
+                                    body: '{"AccessorID":"123123-1234-1234-1234-123456789","Description":"test_token","Local":false,"Policies":[{"Name":"test_policy_1"},{"ID":"652f27c9-d08d-412b-8985-9becc9c42fb2"}],"SecretID":"11cfc2b9-a823-495d-8d6e-4392f182670e"}')
+                               .to_return(status: 200, body: JSON.dump(response), headers: {})
 
         described_class.prefetch(resources)
         described_class.reset
@@ -163,9 +163,9 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/acl/tokens').
-          with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(list_response), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/acl/tokens')
+          .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(list_response), headers: {})
 
         update_response = {
           'AccessorID' => '123123-1234-1234-1234-123456789',
@@ -174,10 +174,10 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           'Policies' => []
         }
 
-        update_response_stub = stub_request(:put, 'http://localhost:8500/v1/acl/token/123123-1234-1234-1234-123456789').
-                               with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' },
-                                    body: '{"AccessorID":"123123-1234-1234-1234-123456789","Description":"test_token","Local":false,"Policies":[{"Name":"test_policy_1"},{"ID":"652f27c9-d08d-412b-8985-9becc9c42fb2"}]}').
-                               to_return(status: 200, body: JSON.dump(update_response), headers: {})
+        update_response_stub = stub_request(:put, 'http://localhost:8500/v1/acl/token/123123-1234-1234-1234-123456789')
+                               .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' },
+                                    body: '{"AccessorID":"123123-1234-1234-1234-123456789","Description":"test_token","Local":false,"Policies":[{"Name":"test_policy_1"},{"ID":"652f27c9-d08d-412b-8985-9becc9c42fb2"}]}')
+                               .to_return(status: 200, body: JSON.dump(update_response), headers: {})
 
         described_class.prefetch(resources)
         described_class.reset
@@ -202,9 +202,9 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/acl/tokens').
-          with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(list_response), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/acl/tokens')
+          .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(list_response), headers: {})
 
         update_response = {
           'AccessorID' => '123123-1234-1234-1234-123456789',
@@ -213,10 +213,10 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           'Policies' => []
         }
 
-        update_response_stub = stub_request(:put, 'http://localhost:8500/v1/acl/token/123123-1234-1234-1234-123456789').
-                               with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' },
-                                    body: '{"AccessorID":"123123-1234-1234-1234-123456789","Description":"test_token","Local":false,"Policies":[{"Name":"test_policy_1"},{"ID":"652f27c9-d08d-412b-8985-9becc9c42fb2"}]}').
-                               to_return(status: 200, body: JSON.dump(update_response), headers: {})
+        update_response_stub = stub_request(:put, 'http://localhost:8500/v1/acl/token/123123-1234-1234-1234-123456789')
+                               .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' },
+                                    body: '{"AccessorID":"123123-1234-1234-1234-123456789","Description":"test_token","Local":false,"Policies":[{"Name":"test_policy_1"},{"ID":"652f27c9-d08d-412b-8985-9becc9c42fb2"}]}')
+                               .to_return(status: 200, body: JSON.dump(update_response), headers: {})
 
         described_class.prefetch(resources)
         described_class.reset
@@ -249,9 +249,9 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/acl/tokens').
-          with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(list_response), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/acl/tokens')
+          .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(list_response), headers: {})
 
         update_response = {
           'AccessorID' => '123123-1234-1234-1234-123456789',
@@ -260,10 +260,10 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           'Policies' => []
         }
 
-        update_response_stub = stub_request(:put, 'http://localhost:8500/v1/acl/token/123123-1234-1234-1234-123456789').
-                               with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' },
-                                    body: '{"AccessorID":"123123-1234-1234-1234-123456789","Description":"test_token","Local":false,"Policies":[{"Name":"test_policy_1"},{"ID":"652f27c9-d08d-412b-8985-9becc9c42fb2"}]}').
-                               to_return(status: 200, body: JSON.dump(update_response), headers: {})
+        update_response_stub = stub_request(:put, 'http://localhost:8500/v1/acl/token/123123-1234-1234-1234-123456789')
+                               .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' },
+                                    body: '{"AccessorID":"123123-1234-1234-1234-123456789","Description":"test_token","Local":false,"Policies":[{"Name":"test_policy_1"},{"ID":"652f27c9-d08d-412b-8985-9becc9c42fb2"}]}')
+                               .to_return(status: 200, body: JSON.dump(update_response), headers: {})
 
         described_class.prefetch(resources)
         described_class.reset
@@ -292,9 +292,9 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/acl/tokens').
-          with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(list_response), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/acl/tokens')
+          .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(list_response), headers: {})
 
         update_response = {
           'AccessorID' => '123123-1234-1234-1234-123456789',
@@ -303,10 +303,10 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           'Policies' => []
         }
 
-        update_response_stub = stub_request(:put, 'http://localhost:8500/v1/acl/token/123123-1234-1234-1234-123456789').
-                               with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' },
-                                    body: '{"AccessorID":"123123-1234-1234-1234-123456789","Description":"test_token","Local":false,"Policies":[{"Name":"test_policy_1"},{"ID":"652f27c9-d08d-412b-8985-9becc9c42fb2"}]}').
-                               to_return(status: 200, body: JSON.dump(update_response), headers: {})
+        update_response_stub = stub_request(:put, 'http://localhost:8500/v1/acl/token/123123-1234-1234-1234-123456789')
+                               .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' },
+                                    body: '{"AccessorID":"123123-1234-1234-1234-123456789","Description":"test_token","Local":false,"Policies":[{"Name":"test_policy_1"},{"ID":"652f27c9-d08d-412b-8985-9becc9c42fb2"}]}')
+                               .to_return(status: 200, body: JSON.dump(update_response), headers: {})
 
         described_class.prefetch(resources)
         described_class.reset
@@ -335,9 +335,9 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/acl/tokens').
-          with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(list_response), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/acl/tokens')
+          .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(list_response), headers: {})
 
         described_class.prefetch(resources)
         described_class.reset
@@ -357,13 +357,13 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
           },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/acl/tokens').
-          with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(list_response), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/acl/tokens')
+          .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(list_response), headers: {})
 
-        delete_response_stub = stub_request(:delete, 'http://localhost:8500/v1/acl/token/123123-1234-1234-1234-123456789').
-                               with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' }).
-                               to_return(status: 200, body: '[]', headers: {})
+        delete_response_stub = stub_request(:delete, 'http://localhost:8500/v1/acl/token/123123-1234-1234-1234-123456789')
+                               .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' })
+                               .to_return(status: 200, body: '[]', headers: {})
 
         described_class.prefetch(resources)
         described_class.reset
@@ -375,9 +375,9 @@ describe Puppet::Type.type(:consul_token).provider(:default) do
       end
 
       it 'does not delete absent non-existing token' do
-        stub_request(:get, 'http://localhost:8500/v1/acl/tokens').
-          with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: '[]', headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/acl/tokens')
+          .with(headers: { 'X-Consul-Token' => 'e33653a6-0320-4a71-b3af-75f14578e3aa', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: '[]', headers: {})
 
         described_class.prefetch(resources)
         described_class.reset

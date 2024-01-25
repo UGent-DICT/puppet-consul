@@ -4,7 +4,7 @@ require 'uri'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'puppet_x', 'consul', 'acl_base.rb'))
 
 Puppet::Type.type(:consul_token).provide(
-  :default
+  :default,
 ) do
   mk_resource_methods
 
@@ -39,15 +39,13 @@ Puppet::Type.type(:consul_token).provide(
       }
     end
 
-    if existing_token
-      @property_hash[:accessor_id] = existing_token.accessor_id
-      @property_hash[:description] = existing_token.description
+    return unless existing_token
+    @property_hash[:accessor_id] = existing_token.accessor_id
+    @property_hash[:description] = existing_token.description
 
-      if existing_token.is_policy_list_equal(resource[:policies_by_id], resource[:policies_by_name])
-        @property_hash[:policies_by_id] = resource[:policies_by_id]
-        @property_hash[:policies_by_name] = resource[:policies_by_name]
-      end
-    end
+    return unless existing_token.is_policy_list_equal(resource[:policies_by_id], resource[:policies_by_name])
+    @property_hash[:policies_by_id] = resource[:policies_by_id]
+    @property_hash[:policies_by_name] = resource[:policies_by_name]
   end
 
   def exists?

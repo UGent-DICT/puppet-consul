@@ -9,7 +9,7 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
         value: 'sampleValue',
         acl_api_token: 'sampleToken',
         datacenter: 'dc1',
-      }
+      },
     )
   end
 
@@ -27,10 +27,10 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
             'ModifyIndex' => 1_350_503 },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 400, body: '', headers: {}).times(2).then.
-          to_return(status: 200, body: JSON.dump(kv_content), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 400, body: '', headers: {}).times(2).then
+          .to_return(status: 200, body: JSON.dump(kv_content), headers: {})
 
         described_class.reset
         described_class.prefetch(resources)
@@ -40,9 +40,9 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
 
     context 'when the first three responses are unexpected' do
       it 'silentlies fail to prefetch' do
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 400, body: '', headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 400, body: '', headers: {})
 
         described_class.reset
         described_class.prefetch(resources)
@@ -52,9 +52,9 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
 
     context 'when a timeout is received' do
       it 'does not handle the timeout' do
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_timeout
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_timeout
 
         described_class.reset
         # expect(described_class.prefetch( resources )).to raise_error
@@ -75,7 +75,7 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
             value: 'sampleValue',
             acl_api_token: 'sampleToken',
             datacenter: 'dc1',
-          }
+          },
         )
 
         res_dc2 = Puppet::Type.type(:consul_key_value).new(
@@ -84,7 +84,7 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
             value: 'sampleValue',
             acl_api_token: 'sampleToken',
             datacenter: 'dc2',
-          }
+          },
         )
 
         resources = { 'sample/keydc1' => res_dc1, 'sample/keydc2' => res_dc2 }
@@ -98,13 +98,13 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
             'ModifyIndex' => 1_350_503 },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(kv_content), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(kv_content), headers: {})
 
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc2&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 404, body: '', headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc2&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 404, body: '', headers: {})
 
         described_class.reset
         described_class.prefetch(resources)
@@ -117,9 +117,9 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
   describe '#exists?' do
     context 'when resource does not exists' do
       it 'returns false' do
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 404, body: '', headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 404, body: '', headers: {})
 
         described_class.reset
         described_class.prefetch(resources)
@@ -138,9 +138,9 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
             'ModifyIndex' => 1_350_503 },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(kv_content), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(kv_content), headers: {})
 
         described_class.reset
         described_class.prefetch(resources)
@@ -161,14 +161,14 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
             'ModifyIndex' => 1_350_503 },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(kv_content), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(kv_content), headers: {})
 
-        stub_request(:put, 'http://localhost:8500/v1/kv/sample/key?dc=dc1&flags=0&token=sampleToken').
-          with(body: 'sampleValue',
-               headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: '', headers: {})
+        stub_request(:put, 'http://localhost:8500/v1/kv/sample/key?dc=dc1&flags=0&token=sampleToken')
+          .with(body: 'sampleValue',
+               headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: '', headers: {})
 
         described_class.reset
         described_class.prefetch(resources)
@@ -188,14 +188,14 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
             'ModifyIndex' => 1_350_503 },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(kv_content), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(kv_content), headers: {})
 
-        stub_request(:put, 'http://localhost:8500/v1/kv/sample/key?dc=dc1&flags=0&token=sampleToken').
-          with(body: 'sampleValue',
-               headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: '', headers: {})
+        stub_request(:put, 'http://localhost:8500/v1/kv/sample/key?dc=dc1&flags=0&token=sampleToken')
+          .with(body: 'sampleValue',
+               headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: '', headers: {})
 
         described_class.reset
         described_class.prefetch(resources)
@@ -222,18 +222,18 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
             flags: 2,
             acl_api_token: 'sampleToken',
             datacenter: 'dc1',
-          }
+          },
         )
         resources = { 'sample/key' => resource }
 
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(kv_content), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(kv_content), headers: {})
 
-        stub_request(:put, 'http://localhost:8500/v1/kv/sample/key?dc=dc1&flags=2&token=sampleToken').
-          with(body: 'sampleValue',
-               headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: '', headers: {})
+        stub_request(:put, 'http://localhost:8500/v1/kv/sample/key?dc=dc1&flags=2&token=sampleToken')
+          .with(body: 'sampleValue',
+               headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: '', headers: {})
 
         described_class.reset
         described_class.prefetch(resources)
@@ -253,14 +253,14 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
             'ModifyIndex' => 1_350_503 },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(kv_content), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(kv_content), headers: {})
 
-        stub_request(:put, 'http://localhost:8500/v1/kv/sample/key?dc=dc1&flags=0&token=sampleToken').
-          with(body: 'sampleValue',
-               headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 400, body: '', headers: {})
+        stub_request(:put, 'http://localhost:8500/v1/kv/sample/key?dc=dc1&flags=0&token=sampleToken')
+          .with(body: 'sampleValue',
+               headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 400, body: '', headers: {})
 
         described_class.reset
         described_class.prefetch(resources)
@@ -282,13 +282,13 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
             'ModifyIndex' => 1_350_503 },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(kv_content), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(kv_content), headers: {})
 
-        stub_request(:delete, 'http://localhost:8500/v1/kv/sample/key?dc=dc1&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: '', headers: {})
+        stub_request(:delete, 'http://localhost:8500/v1/kv/sample/key?dc=dc1&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: '', headers: {})
 
         described_class.reset
         described_class.prefetch(resources)
@@ -308,13 +308,13 @@ describe Puppet::Type.type(:consul_key_value).provider(:default) do
             'ModifyIndex' => 1_350_503 },
         ]
 
-        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 200, body: JSON.dump(kv_content), headers: {})
+        stub_request(:get, 'http://localhost:8500/v1/kv/?dc=dc1&recurse&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 200, body: JSON.dump(kv_content), headers: {})
 
-        stub_request(:delete, 'http://localhost:8500/v1/kv/sample/key?dc=dc1&token=sampleToken').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' }).
-          to_return(status: 400, body: '', headers: {})
+        stub_request(:delete, 'http://localhost:8500/v1/kv/sample/key?dc=dc1&token=sampleToken')
+          .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+          .to_return(status: 400, body: '', headers: {})
 
         described_class.reset
         described_class.prefetch(resources)

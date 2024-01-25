@@ -2,42 +2,42 @@ require 'spec_helper'
 
 describe Puppet::Type.type(:consul_policy) do
   it 'fails if no name is provided' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_policy).new(id: {}, rules: {})
-    end.to raise_error(Puppet::Error, %r{Title or name must be provided})
+    }.to raise_error(Puppet::Error, %r{Title or name must be provided})
   end
 
   it 'fails if ID ist not a string' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_policy).new(name: 'foo', id: {})
-    end.to raise_error(Puppet::Error, %r{ID must be a string})
+    }.to raise_error(Puppet::Error, %r{ID must be a string})
   end
 
   it 'fails if description ist not a string' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_policy).new(name: 'foo', description: {})
-    end.to raise_error(Puppet::Error, %r{Description must be a string})
+    }.to raise_error(Puppet::Error, %r{Description must be a string})
   end
 
   it 'fails if datacenters list is not an array' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_policy).new(name: 'foo', datacenters: [[]])
-    end.to raise_error(Puppet::Error, %r{Datacenter name list must be an array of strings})
+    }.to raise_error(Puppet::Error, %r{Datacenter name list must be an array of strings})
   end
 
   it 'fails if rules is not a hash' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_policy).new(
         name: 'testing',
         id: '39c75e12-7f43-0a40-dfba-9aa3fcda08d4',
         description: 'test description',
-        rules: 'abc'
+        rules: 'abc',
       )
-    end.to raise_error(Puppet::Error, %r{Policy rule must be a hash})
+    }.to raise_error(Puppet::Error, %r{Policy rule must be a hash})
   end
 
   it 'fails if rule resource is missing' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_policy).new(
         name: 'testing',
         id: '39c75e12-7f43-0a40-dfba-9aa3fcda08d4',
@@ -47,13 +47,13 @@ describe Puppet::Type.type(:consul_policy) do
             'segment' => 'test_service',
             'disposition' => 'read'
           },
-        ]
+        ],
       )
-    end.to raise_error(Puppet::Error, %r{Policy rule needs to specify a resource})
+    }.to raise_error(Puppet::Error, %r{Policy rule needs to specify a resource})
   end
 
   it 'fails if rule disposition is missing' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_policy).new(
         name: 'testing',
         id: '39c75e12-7f43-0a40-dfba-9aa3fcda08d4',
@@ -63,13 +63,13 @@ describe Puppet::Type.type(:consul_policy) do
             'resource' => 'service_prefix',
             'segment' => 'test_service',
           },
-        ]
+        ],
       )
-    end.to raise_error(Puppet::Error, %r{Policy rule needs to specify a disposition})
+    }.to raise_error(Puppet::Error, %r{Policy rule needs to specify a disposition})
   end
 
   it 'fails if rule resource is not a string' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_policy).new(
         name: 'testing',
         id: '39c75e12-7f43-0a40-dfba-9aa3fcda08d4',
@@ -80,13 +80,13 @@ describe Puppet::Type.type(:consul_policy) do
             'segment' => 'test_service',
             'disposition' => 'read'
           },
-        ]
+        ],
       )
-    end.to raise_error(Puppet::Error, %r{Policy rule resource must be a string})
+    }.to raise_error(Puppet::Error, %r{Policy rule resource must be a string})
   end
 
   it 'fails if rule disposition is not a string' do
-    expect do
+    expect {
       Puppet::Type.type(:consul_policy).new(
         name: 'testing',
         id: '39c75e12-7f43-0a40-dfba-9aa3fcda08d4',
@@ -97,14 +97,14 @@ describe Puppet::Type.type(:consul_policy) do
             'segment' => 'test_service',
             'disposition' => []
           },
-        ]
+        ],
       )
-    end.to raise_error(Puppet::Error, %r{Policy rule disposition must be a string})
+    }.to raise_error(Puppet::Error, %r{Policy rule disposition must be a string})
   end
 
   context 'resource is acl, operator or keyring' do
     it 'passes if rule segment is missing' do
-      expect do
+      expect {
         Puppet::Type.type(:consul_policy).new(
           name: 'testing',
           id: '39c75e12-7f43-0a40-dfba-9aa3fcda08d4',
@@ -114,7 +114,7 @@ describe Puppet::Type.type(:consul_policy) do
               'resource' => 'acl',
               'disposition' => 'read'
             },
-          ]
+          ],
         )
         Puppet::Type.type(:consul_policy).new(
           name: 'testing',
@@ -125,7 +125,7 @@ describe Puppet::Type.type(:consul_policy) do
               'resource' => 'operator',
               'disposition' => 'read'
             },
-          ]
+          ],
         )
         Puppet::Type.type(:consul_policy).new(
           name: 'testing',
@@ -136,13 +136,13 @@ describe Puppet::Type.type(:consul_policy) do
               'resource' => 'keyring',
               'disposition' => 'read'
             },
-          ]
+          ],
         )
-      end.not_to raise_error
+      }.not_to raise_error
     end
 
     it 'passes if rule segment is not a string' do
-      expect do
+      expect {
         Puppet::Type.type(:consul_policy).new(
           name: 'testing',
           id: '39c75e12-7f43-0a40-dfba-9aa3fcda08d4',
@@ -153,15 +153,15 @@ describe Puppet::Type.type(:consul_policy) do
               'segment' => [],
               'disposition' => 'read'
             },
-          ]
+          ],
         )
-      end.not_to raise_error
+      }.not_to raise_error
     end
   end
 
   context 'resource is neither acl nor operator nor keyring' do
     it 'fails if rule segment is missing' do
-      expect do
+      expect {
         Puppet::Type.type(:consul_policy).new(
           name: 'testing',
           id: '39c75e12-7f43-0a40-dfba-9aa3fcda08d4',
@@ -171,13 +171,13 @@ describe Puppet::Type.type(:consul_policy) do
               'resource' => 'service_prefix',
               'disposition' => 'read'
             },
-          ]
+          ],
         )
-      end.to raise_error(Puppet::Error, %r{Policy rule needs to specify a segment})
+      }.to raise_error(Puppet::Error, %r{Policy rule needs to specify a segment})
     end
 
     it 'fails if rule segment is not a string' do
-      expect do
+      expect {
         Puppet::Type.type(:consul_policy).new(
           name: 'testing',
           id: '39c75e12-7f43-0a40-dfba-9aa3fcda08d4',
@@ -188,9 +188,9 @@ describe Puppet::Type.type(:consul_policy) do
               'segment' => [],
               'disposition' => 'read'
             },
-          ]
+          ],
         )
-      end.to raise_error(Puppet::Error, %r{Policy rule segment must be a string})
+      }.to raise_error(Puppet::Error, %r{Policy rule segment must be a string})
     end
   end
 
@@ -209,13 +209,13 @@ describe Puppet::Type.type(:consul_policy) do
     ]
     datacenters = ['testdc']
 
-    before do
+    before(:each) do
       @policy = Puppet::Type.type(:consul_policy).new(
         name: 'testing',
         id: '39c75e12-7f43-0a40-dfba-9aa3fcda08d4',
         description: 'test description',
         datacenters: datacenters,
-        rules: rules
+        rules: rules,
       )
     end
 
