@@ -553,14 +553,14 @@ describe 'consul' do
             checks: {
               'test_check1' => {
                 'interval' => '30',
-                'script' => 'test.sh',
+                'args' => ['test.sh'],
               }
             }
           }
         end
 
         it { is_expected.to contain_consul__check('test_check1').with_interval('30') }
-        it { is_expected.to contain_consul__check('test_check1').with_script('test.sh') }
+        it { is_expected.to contain_consul__check('test_check1').with_args(['test.sh']) }
         it { is_expected.to have_consul__check_resource_count(1) }
         it { is_expected.to contain_exec('reload consul service') }
       end

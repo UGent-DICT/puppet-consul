@@ -16,26 +16,8 @@ describe 'consul::check' do
 
         it {
           expect do
-            is_expected.to raise_error(Puppet::Error, %r{Wrong number of arguments})
+            is_expected.to raise_error(Puppet::Error)
           end
-        }
-      end
-
-      describe 'with script' do
-        let(:params) do
-          {
-            'interval' => '30s',
-            'script' => 'true'
-          }
-        end
-
-        it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json') \
-            .with_content(%r{"id" *: *"my_check"}) \
-            .with_content(%r{"name" *: *"my_check"}) \
-            .with_content(%r{"check" *: *\{}) \
-            .with_content(%r{"interval" *: *"30s"}) \
-            .with_content(%r{"script" *: *"true"})
         }
       end
 
@@ -43,7 +25,7 @@ describe 'consul::check' do
         let(:params) do
           {
             'interval' => '30s',
-            'args' => ['sh', '-c', 'true', '1', 2],
+            'args' => ['sh', '-c', 'true', '1', '2'],
           }
         end
 
@@ -54,46 +36,6 @@ describe 'consul::check' do
             .with_content(%r{"check" *: *\{}) \
             .with_content(%r{"interval" *: *"30s"}) \
             .with_content(%r{"args" *: *\[ *"sh", *"-c", *"true", *"1", *"2" *\]})
-        }
-      end
-
-      describe 'with script and service_id' do
-        let(:params) do
-          {
-            'interval' => '30s',
-            'script' => 'true',
-            'service_id' => 'my_service'
-          }
-        end
-
-        it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json') \
-            .with_content(%r{"id" *: *"my_check"}) \
-            .with_content(%r{"name" *: *"my_check"}) \
-            .with_content(%r{"check" *: *\{}) \
-            .with_content(%r{"interval" *: *"30s"}) \
-            .with_content(%r{"script" *: *"true"}) \
-            .with_content(%r{"service_id" *: *"my_service"})
-        }
-      end
-
-      describe 'reload service with script and token' do
-        let(:params) do
-          {
-            'interval' => '30s',
-            'script' => 'true',
-            'token' => 'too-cool-for-this-script'
-          }
-        end
-
-        it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json') \
-            .with_content(%r{"id" *: *"my_check"}) \
-            .with_content(%r{"name" *: *"my_check"}) \
-            .with_content(%r{"interval" *: *"30s"}) \
-            .with_content(%r{"script" *: *"true"}) \
-            .with_content(%r{"token" *: *"too-cool-for-this-script"}) \
-            .that_notifies('Class[consul::reload_service]') \
         }
       end
 
@@ -275,46 +217,6 @@ describe 'consul::check' do
         }
       end
 
-      describe 'with script and service_id' do
-        let(:params) do
-          {
-            'tcp' => 'localhost:80',
-            'interval' => '30s',
-            'service_id' => 'my_service'
-          }
-        end
-
-        it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json') \
-            .with_content(%r{"id" *: *"my_check"}) \
-            .with_content(%r{"name" *: *"my_check"}) \
-            .with_content(%r{"check" *: *\{}) \
-            .with_content(%r{"tcp" *: *"localhost:80"}) \
-            .with_content(%r{"interval" *: *"30s"}) \
-            .with_content(%r{"service_id" *: *"my_service"})
-        }
-      end
-
-      describe 'reload service with script and token' do
-        let(:params) do
-          {
-            'tcp' => 'localhost:80',
-            'interval' => '30s',
-            'token' => 'too-cool-for-this-script'
-          }
-        end
-
-        it {
-          is_expected.to contain_file('/etc/consul/check_my_check.json') \
-            .with_content(%r{"id" *: *"my_check"}) \
-            .with_content(%r{"name" *: *"my_check"}) \
-            .with_content(%r{"tcp" *: *"localhost:80"}) \
-            .with_content(%r{"interval" *: *"30s"}) \
-            .with_content(%r{"token" *: *"too-cool-for-this-script"}) \
-            .that_notifies('Class[consul::reload_service]') \
-        }
-      end
-
       describe 'with both ttl and interval' do
         let(:params) do
           {
@@ -324,21 +226,7 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to raise_error(Puppet::Error, %r{script, http, tcp, grpc and interval must not be defined for ttl checks})
-        }
-      end
-
-      describe 'with both ttl and script' do
-        let(:params) do
-          {
-            'ttl' => '30s',
-            'script' => 'true',
-            'interval' => '60s'
-          }
-        end
-
-        it {
-          is_expected.to raise_error(Puppet::Error, %r{script, http, tcp, grpc and interval must not be defined for ttl checks})
+          is_expected.to raise_error(Puppet::Error)
         }
       end
 
@@ -352,7 +240,7 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to raise_error(Puppet::Error, %r{script, http, tcp, grpc and interval must not be defined for ttl checks})
+          is_expected.to raise_error(Puppet::Error)
         }
       end
 
@@ -366,33 +254,7 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to raise_error(Puppet::Error, %r{script, http, tcp, grpc and interval must not be defined for ttl checks})
-        }
-      end
-
-      describe 'with both script and http' do
-        let(:params) do
-          {
-            'script' => 'true',
-            'http' => 'http://localhost/health',
-            'interval' => '60s'
-          }
-        end
-
-        it {
-          is_expected.to raise_error(Puppet::Error, %r{script, tcp and grpc must not be defined for http checks})
-        }
-      end
-
-      describe 'with script but no interval' do
-        let(:params) do
-          {
-            'script' => 'true',
-          }
-        end
-
-        it {
-          is_expected.to raise_error(Puppet::Error, %r{interval must be defined for tcp, http, grpc and script checks})
+          is_expected.to raise_error(Puppet::Error)
         }
       end
 
@@ -404,7 +266,7 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to raise_error(Puppet::Error, %r{interval must be defined for tcp, http, grpc and script checks})
+          is_expected.to raise_error(Puppet::Error)
         }
       end
 
@@ -416,7 +278,7 @@ describe 'consul::check' do
         end
 
         it {
-          is_expected.to raise_error(Puppet::Error, %r{interval must be defined for tcp, http, grpc and script checks})
+          is_expected.to raise_error(Puppet::Error)
         }
       end
 

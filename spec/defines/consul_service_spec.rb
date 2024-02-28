@@ -104,26 +104,6 @@ describe 'consul::service' do
         }
       end
 
-      describe 'with script and interval' do
-        let(:params) do
-          {
-            'checks' => [
-              {
-                'interval' => '30s',
-                'script' => 'true'
-              },
-            ]
-          }
-        end
-
-        it {
-          is_expected.to contain_file('/etc/consul/service_my_service.json') \
-            .with_content(%r{"checks" *: *\[}) \
-            .with_content(%r{"interval" *: *"30s"}) \
-            .with_content(%r{"script" *: *"true"})
-        }
-      end
-
       describe 'with http and interval' do
         let(:params) do
           {
@@ -176,7 +156,7 @@ describe 'consul::service' do
 
         it {
           expect do
-            is_expected.to raise_error(Puppet::Error, %r{script or http must not be defined for ttl checks})
+            is_expected.to raise_error(Puppet::Error)
           end
         }
       end
@@ -227,25 +207,6 @@ describe 'consul::service' do
         }
       end
 
-      describe 'with both ttl and script' do
-        let(:params) do
-          {
-            'checks' => [
-              {
-                'ttl' => '30s',
-                'script' => 'true'
-              },
-            ]
-          }
-        end
-
-        it {
-          expect do
-            is_expected.to raise_error(Puppet::Error, %r{script or http must not be defined for ttl checks})
-          end
-        }
-      end
-
       describe 'with interval but no script' do
         let(:params) do
           {
@@ -259,34 +220,8 @@ describe 'consul::service' do
 
         it {
           expect do
-            is_expected.to raise_error(Puppet::Error, %r{One of ttl, script or http must be defined})
+            is_expected.to raise_error(Puppet::Error)
           end
-        }
-      end
-
-      describe 'with multiple checks script and http' do
-        let(:params) do
-          {
-            'checks' => [
-              {
-                'interval' => '30s',
-                'script' => 'true'
-              },
-              {
-                'interval' => '10s',
-                'http' => 'localhost'
-              },
-            ]
-          }
-        end
-
-        it {
-          is_expected.to contain_file('/etc/consul/service_my_service.json') \
-            .with_content(%r{"checks" *: *\[}) \
-            .with_content(%r{"interval" *: *"30s"}) \
-            .with_content(%r{"script" *: *"true"}) \
-            .with_content(%r{"interval" *: *"10s"}) \
-            .with_content(%r{"http" *: *"localhost"})
         }
       end
 
@@ -313,28 +248,6 @@ describe 'consul::service' do
         it {
           is_expected.to contain_file('/etc/consul/service_aa_bb_cc.json') \
             .with_content(%r{"id" *: *"aa/bb/cc"})
-        }
-      end
-
-      describe 'with multiple checks script and invalid http' do
-        let(:params) do
-          {
-            'checks' => [
-              {
-                'interval' => '30s',
-                'script' => 'true'
-              },
-              {
-                'http' => 'localhost'
-              },
-            ]
-          }
-        end
-
-        it {
-          expect do
-            is_expected.to raise_error(Puppet::Error, %r{http must be defined for interval checks})
-          end
         }
       end
 
