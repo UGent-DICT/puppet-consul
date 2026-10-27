@@ -519,6 +519,25 @@ The optional parameters only need to be specified if you require changes from de
 - `hostname` {String} consul hostname. Defaults to `'localhost'`.
 - `api_tries` {Integer} number of tries when contacting the Consul REST API. Timeouts are not retried because a timeout already takes long. Defaults to `3`.
 
+## Service Intentions
+
+Consul Connect service intentions (L4 only) can be managed per destination service.
+Each resource maps to the `service-intentions` config entry of that destination and
+manages its complete list of sources:
+
+```puppet
+consul_intention { 'web':
+  sources       => [
+    { 'name' => 'api', 'action' => 'allow' },
+    { 'name' => '*', 'action' => 'deny' },
+  ],
+  acl_api_token => 'e33653a6-0320-4a71-b3af-75f14578e3aa',
+}
+```
+
+Sources not listed are removed from the config entry. The TLS parameters from
+[HTTPS with a private CA](#https-with-a-private-ca) are available as well.
+
 ## Limitations
 
 Depends on the JSON gem, or a modern ruby. (Ruby 1.8.7 is not officially supported)
