@@ -46,7 +46,9 @@ Puppet::Type.type(:consul_policy).provide(
       if %w[acl operator keyring mesh peering].include?(rule['resource'])
         encoded.push("#{rule['resource']} = \"#{rule['disposition']}\"")
       else
-        encoded.push("#{rule['resource']} \"#{rule['segment']}\" {\n  policy = \"#{rule['disposition']}\"\n}")
+        body = "  policy = \"#{rule['disposition']}\"\n"
+        body += "  intentions = \"#{rule['intentions']}\"\n" if rule.key?('intentions')
+        encoded.push("#{rule['resource']} \"#{rule['segment']}\" {\n#{body}}")
       end
     end
 

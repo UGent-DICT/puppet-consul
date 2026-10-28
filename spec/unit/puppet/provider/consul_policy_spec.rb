@@ -29,6 +29,28 @@ describe Puppet::Type.type(:consul_policy).provider(:default) do
 
   let(:resources) { { 'test_policy' => resource } }
 
+  describe '.encode_rules' do
+    it 'encodes intentions for service rules' do
+      rules = [
+        {
+          'resource' => 'service',
+          'segment' => 'web',
+          'disposition' => 'write',
+          'intentions' => 'read',
+        },
+        {
+          'resource' => 'service_prefix',
+          'segment' => '',
+          'disposition' => 'read',
+        },
+      ]
+
+      expect(described_class.encode_rules(rules)).to eq(
+        "service \"web\" {\n  policy = \"write\"\n  intentions = \"read\"\n}\n\nservice_prefix \"\" {\n  policy = \"read\"\n}",
+      )
+    end
+  end
+
   describe '.list_resources' do
     context 'when the first two responses are unexpected' do
       it 'retries 3 times' do
