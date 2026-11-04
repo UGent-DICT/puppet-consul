@@ -22,12 +22,21 @@
 ### Defined types
 
 * [`consul::check`](#consul--check): Sets up a Consul healthcheck
+* [`consul::config_entry::api_gateway`](#consul--config_entry--api_gateway): Manages an `api-gateway` Consul config entry
+* [`consul::config_entry::file_system_certificate`](#consul--config_entry--file_system_certificate): Manages a `file-system-certificate` Consul config entry
+* [`consul::config_entry::http_route`](#consul--config_entry--http_route): Manages an `http-route` Consul config entry
+* [`consul::config_entry::mesh`](#consul--config_entry--mesh): Manages the `mesh` Consul config entry
+* [`consul::config_entry::service_defaults`](#consul--config_entry--service_defaults): Manages a `service-defaults` Consul config entry
+* [`consul::config_entry::service_intentions`](#consul--config_entry--service_intentions): Manages a `service-intentions` Consul config entry
+* [`consul::config_entry::tcp_route`](#consul--config_entry--tcp_route): Manages a `tcp-route` Consul config entry
+* [`consul::config_entry::terminating_gateway`](#consul--config_entry--terminating_gateway): Manages a `terminating-gateway` Consul config entry
 * [`consul::service`](#consul--service): Sets up a Consul service definition
 * [`consul::watch`](#consul--watch): Sets up Consul watch, to span commands when data changes.
 
 ### Resource types
 
 * [`consul_acl`](#consul_acl): Manage a consul token and its ACLs.
+* [`consul_config_entry`](#consul_config_entry): Manages a Consul config entry through the `/v1/config` API.  The title is `<kind>/<name>`, e.g. `api-gateway/agw`. The `config` property is t
 * [`consul_key_value`](#consul_key_value): Manage a consul key value object.
 * [`consul_policy`](#consul_policy): Manages a Consul ACL policy
 * [`consul_prepared_query`](#consul_prepared_query): Manage a consul prepared query.
@@ -40,6 +49,13 @@
 
 ### Data types
 
+* [`Consul::Config_entry::Api_gateway_listener`](#Consul--Config_entry--Api_gateway_listener): Listener of an `api-gateway` config entry. `tcp` listeners are used by `tcp-route`, the other protocols by `http-route`.
+* [`Consul::Config_entry::Destination`](#Consul--Config_entry--Destination): `Destination` block of a `service-defaults` config entry: an external service reached through a terminating gateway. Requires the service to
+* [`Consul::Config_entry::Http_route_rule`](#Consul--Config_entry--Http_route_rule): Rule of an `http-route` config entry: what to match, how to filter and where to send it.
+* [`Consul::Config_entry::Intention_source`](#Consul--Config_entry--Intention_source): Source of a `service-intentions` config entry: either an L4 `Action` or a list of L7 `Permissions`, never both. L7 permissions need the desti
+* [`Consul::Config_entry::Parent_ref`](#Consul--Config_entry--Parent_ref): Reference from a route to the API gateway (listener) it attaches to. Consul only supports `api-gateway` parents.
+* [`Consul::Config_entry::Tcp_route_service`](#Consul--Config_entry--Tcp_route_service): Service a `tcp-route` forwards to. Consul accepts at most one.
+* [`Consul::Config_entry::Terminating_gateway_service`](#Consul--Config_entry--Terminating_gateway_service): Service linked to a `terminating-gateway` config entry. Set either none or both of CertFile and KeyFile; without CAFile, traffic to the desti
 * [`Consul::PolicyStruct`](#Consul--PolicyStruct)
 * [`Consul::TokenStruct`](#Consul--TokenStruct)
 
@@ -824,6 +840,1082 @@ Value may be set to become check critical only after a specified number of conse
 
 Default value: `undef`
 
+### <a name="consul--config_entry--api_gateway"></a>`consul::config_entry::api_gateway`
+
+The listeners are validated with `Consul::Config_entry::Api_gateway_listener`.
+Attach routes with `consul::config_entry::tcp_route` (tcp listeners) or
+`consul::config_entry::http_route` (http listeners).
+
+#### Examples
+
+#####
+
+```puppet
+consul::config_entry::api_gateway { 'agw':
+  listeners => [{ 'Name' => 'vault', 'Port' => 8200, 'Protocol' => 'tcp' }],
+}
+```
+
+#### Parameters
+
+The following parameters are available in the `consul::config_entry::api_gateway` defined type:
+
+* [`listeners`](#-consul--config_entry--api_gateway--listeners)
+* [`ensure`](#-consul--config_entry--api_gateway--ensure)
+* [`meta`](#-consul--config_entry--api_gateway--meta)
+* [`acl_api_token`](#-consul--config_entry--api_gateway--acl_api_token)
+* [`protocol`](#-consul--config_entry--api_gateway--protocol)
+* [`hostname`](#-consul--config_entry--api_gateway--hostname)
+* [`port`](#-consul--config_entry--api_gateway--port)
+* [`ca_file`](#-consul--config_entry--api_gateway--ca_file)
+* [`ca_path`](#-consul--config_entry--api_gateway--ca_path)
+* [`client_cert`](#-consul--config_entry--api_gateway--client_cert)
+* [`client_key`](#-consul--config_entry--api_gateway--client_key)
+* [`api_tries`](#-consul--config_entry--api_gateway--api_tries)
+
+##### <a name="-consul--config_entry--api_gateway--listeners"></a>`listeners`
+
+Data type: `Array[Consul::Config_entry::Api_gateway_listener, 1]`
+
+Listeners of the gateway.
+
+##### <a name="-consul--config_entry--api_gateway--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+Whether the config entry should exist.
+
+Default value: `'present'`
+
+##### <a name="-consul--config_entry--api_gateway--meta"></a>`meta`
+
+Data type: `Optional[Hash[String[1], String]]`
+
+Metadata stored with the config entry.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--api_gateway--acl_api_token"></a>`acl_api_token`
+
+Data type: `Optional[String]`
+
+Token for accessing the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--api_gateway--protocol"></a>`protocol`
+
+Data type: `Optional[Enum['http', 'https']]`
+
+Protocol of the Consul API, `http` or `https`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--api_gateway--hostname"></a>`hostname`
+
+Data type: `Optional[String[1]]`
+
+Hostname of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--api_gateway--port"></a>`port`
+
+Data type: `Optional[Stdlib::Port]`
+
+Port of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--api_gateway--ca_file"></a>`ca_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM CA bundle used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--api_gateway--ca_path"></a>`ca_path`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+OpenSSL hashed CA directory used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--api_gateway--client_cert"></a>`client_cert`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM client certificate for mutual TLS.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--api_gateway--client_key"></a>`client_key`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Unencrypted PEM private key for `client_cert`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--api_gateway--api_tries"></a>`api_tries`
+
+Data type: `Optional[Integer[1]]`
+
+Number of tries when contacting the Consul API.
+
+Default value: `undef`
+
+### <a name="consul--config_entry--file_system_certificate"></a>`consul::config_entry::file_system_certificate`
+
+Points an API gateway listener at a certificate and key on the gateway host, so that the private key
+never enters the Consul state. Reference the entry from a listener in
+`TLS => { Certificates => [{ Kind => file-system-certificate, Name => <name> }] }`.
+Both files must be readable by the API gateway proxy at runtime.
+
+#### Examples
+
+#####
+
+```puppet
+consul::config_entry::file_system_certificate { 'web':
+  certificate => '/etc/consul/connect/web.crt',
+  private_key => '/etc/consul/connect/web.key',
+}
+```
+
+#### Parameters
+
+The following parameters are available in the `consul::config_entry::file_system_certificate` defined type:
+
+* [`certificate`](#-consul--config_entry--file_system_certificate--certificate)
+* [`private_key`](#-consul--config_entry--file_system_certificate--private_key)
+* [`ensure`](#-consul--config_entry--file_system_certificate--ensure)
+* [`meta`](#-consul--config_entry--file_system_certificate--meta)
+* [`acl_api_token`](#-consul--config_entry--file_system_certificate--acl_api_token)
+* [`protocol`](#-consul--config_entry--file_system_certificate--protocol)
+* [`hostname`](#-consul--config_entry--file_system_certificate--hostname)
+* [`port`](#-consul--config_entry--file_system_certificate--port)
+* [`ca_file`](#-consul--config_entry--file_system_certificate--ca_file)
+* [`ca_path`](#-consul--config_entry--file_system_certificate--ca_path)
+* [`client_cert`](#-consul--config_entry--file_system_certificate--client_cert)
+* [`client_key`](#-consul--config_entry--file_system_certificate--client_key)
+* [`api_tries`](#-consul--config_entry--file_system_certificate--api_tries)
+
+##### <a name="-consul--config_entry--file_system_certificate--certificate"></a>`certificate`
+
+Data type: `Stdlib::Absolutepath`
+
+Path to the public certificate (chain) on the gateway host.
+
+##### <a name="-consul--config_entry--file_system_certificate--private_key"></a>`private_key`
+
+Data type: `Stdlib::Absolutepath`
+
+Path to the private key on the gateway host.
+
+##### <a name="-consul--config_entry--file_system_certificate--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+Whether the config entry should exist.
+
+Default value: `'present'`
+
+##### <a name="-consul--config_entry--file_system_certificate--meta"></a>`meta`
+
+Data type: `Optional[Hash[String[1], String]]`
+
+Metadata stored with the config entry.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--file_system_certificate--acl_api_token"></a>`acl_api_token`
+
+Data type: `Optional[String]`
+
+Token for accessing the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--file_system_certificate--protocol"></a>`protocol`
+
+Data type: `Optional[Enum['http', 'https']]`
+
+Protocol of the Consul API, `http` or `https`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--file_system_certificate--hostname"></a>`hostname`
+
+Data type: `Optional[String[1]]`
+
+Hostname of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--file_system_certificate--port"></a>`port`
+
+Data type: `Optional[Stdlib::Port]`
+
+Port of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--file_system_certificate--ca_file"></a>`ca_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM CA bundle used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--file_system_certificate--ca_path"></a>`ca_path`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+OpenSSL hashed CA directory used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--file_system_certificate--client_cert"></a>`client_cert`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM client certificate for mutual TLS.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--file_system_certificate--client_key"></a>`client_key`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Unencrypted PEM private key for `client_cert`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--file_system_certificate--api_tries"></a>`api_tries`
+
+Data type: `Optional[Integer[1]]`
+
+Number of tries when contacting the Consul API.
+
+Default value: `undef`
+
+### <a name="consul--config_entry--http_route"></a>`consul::config_entry::http_route`
+
+Routes the traffic of an `http`, `http2` or `grpc` listener of an API gateway to services.
+Rules are validated with `Consul::Config_entry::Http_route_rule`.
+
+#### Examples
+
+#####
+
+```puppet
+consul::config_entry::http_route { 'web':
+  parents   => [{ 'Kind' => 'api-gateway', 'Name' => 'agw', 'SectionName' => 'https' }],
+  hostnames => ['web.example.org'],
+  rules     => [{ 'Services' => [{ 'Name' => 'web' }] }],
+}
+```
+
+#### Parameters
+
+The following parameters are available in the `consul::config_entry::http_route` defined type:
+
+* [`parents`](#-consul--config_entry--http_route--parents)
+* [`rules`](#-consul--config_entry--http_route--rules)
+* [`hostnames`](#-consul--config_entry--http_route--hostnames)
+* [`ensure`](#-consul--config_entry--http_route--ensure)
+* [`meta`](#-consul--config_entry--http_route--meta)
+* [`acl_api_token`](#-consul--config_entry--http_route--acl_api_token)
+* [`protocol`](#-consul--config_entry--http_route--protocol)
+* [`hostname`](#-consul--config_entry--http_route--hostname)
+* [`port`](#-consul--config_entry--http_route--port)
+* [`ca_file`](#-consul--config_entry--http_route--ca_file)
+* [`ca_path`](#-consul--config_entry--http_route--ca_path)
+* [`client_cert`](#-consul--config_entry--http_route--client_cert)
+* [`client_key`](#-consul--config_entry--http_route--client_key)
+* [`api_tries`](#-consul--config_entry--http_route--api_tries)
+
+##### <a name="-consul--config_entry--http_route--parents"></a>`parents`
+
+Data type: `Array[Consul::Config_entry::Parent_ref, 1]`
+
+API gateways (and optionally listeners) the route attaches to.
+
+##### <a name="-consul--config_entry--http_route--rules"></a>`rules`
+
+Data type: `Array[Consul::Config_entry::Http_route_rule, 1]`
+
+Rules with matches, filters and the services to route to.
+
+##### <a name="-consul--config_entry--http_route--hostnames"></a>`hostnames`
+
+Data type: `Optional[Array[String[1]]]`
+
+Hostnames the route applies to.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--http_route--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+Whether the config entry should exist.
+
+Default value: `'present'`
+
+##### <a name="-consul--config_entry--http_route--meta"></a>`meta`
+
+Data type: `Optional[Hash[String[1], String]]`
+
+Metadata stored with the config entry.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--http_route--acl_api_token"></a>`acl_api_token`
+
+Data type: `Optional[String]`
+
+Token for accessing the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--http_route--protocol"></a>`protocol`
+
+Data type: `Optional[Enum['http', 'https']]`
+
+Protocol of the Consul API, `http` or `https`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--http_route--hostname"></a>`hostname`
+
+Data type: `Optional[String[1]]`
+
+Hostname of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--http_route--port"></a>`port`
+
+Data type: `Optional[Stdlib::Port]`
+
+Port of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--http_route--ca_file"></a>`ca_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM CA bundle used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--http_route--ca_path"></a>`ca_path`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+OpenSSL hashed CA directory used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--http_route--client_cert"></a>`client_cert`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM client certificate for mutual TLS.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--http_route--client_key"></a>`client_key`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Unencrypted PEM private key for `client_cert`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--http_route--api_tries"></a>`api_tries`
+
+Data type: `Optional[Integer[1]]`
+
+Number of tries when contacting the Consul API.
+
+Default value: `undef`
+
+### <a name="consul--config_entry--mesh"></a>`consul::config_entry::mesh`
+
+The mesh config entry is global and always named `mesh`: declare this once per cluster.
+The title of the resource is free.
+
+#### Examples
+
+#####
+
+```puppet
+consul::config_entry::mesh { 'mesh':
+  transparent_proxy => { 'MeshDestinationsOnly' => true },
+}
+```
+
+#### Parameters
+
+The following parameters are available in the `consul::config_entry::mesh` defined type:
+
+* [`transparent_proxy`](#-consul--config_entry--mesh--transparent_proxy)
+* [`ensure`](#-consul--config_entry--mesh--ensure)
+* [`meta`](#-consul--config_entry--mesh--meta)
+* [`acl_api_token`](#-consul--config_entry--mesh--acl_api_token)
+* [`protocol`](#-consul--config_entry--mesh--protocol)
+* [`hostname`](#-consul--config_entry--mesh--hostname)
+* [`port`](#-consul--config_entry--mesh--port)
+* [`ca_file`](#-consul--config_entry--mesh--ca_file)
+* [`ca_path`](#-consul--config_entry--mesh--ca_path)
+* [`client_cert`](#-consul--config_entry--mesh--client_cert)
+* [`client_key`](#-consul--config_entry--mesh--client_key)
+* [`api_tries`](#-consul--config_entry--mesh--api_tries)
+
+##### <a name="-consul--config_entry--mesh--transparent_proxy"></a>`transparent_proxy`
+
+Data type: `Optional[Struct[{ 'MeshDestinationsOnly' => Boolean }]]`
+
+With `MeshDestinationsOnly` set to true, transparent proxies can only reach mesh services and registered destinations.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--mesh--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+Whether the config entry should exist.
+
+Default value: `'present'`
+
+##### <a name="-consul--config_entry--mesh--meta"></a>`meta`
+
+Data type: `Optional[Hash[String[1], String]]`
+
+Metadata stored with the config entry.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--mesh--acl_api_token"></a>`acl_api_token`
+
+Data type: `Optional[String]`
+
+Token for accessing the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--mesh--protocol"></a>`protocol`
+
+Data type: `Optional[Enum['http', 'https']]`
+
+Protocol of the Consul API, `http` or `https`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--mesh--hostname"></a>`hostname`
+
+Data type: `Optional[String[1]]`
+
+Hostname of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--mesh--port"></a>`port`
+
+Data type: `Optional[Stdlib::Port]`
+
+Port of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--mesh--ca_file"></a>`ca_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM CA bundle used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--mesh--ca_path"></a>`ca_path`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+OpenSSL hashed CA directory used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--mesh--client_cert"></a>`client_cert`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM client certificate for mutual TLS.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--mesh--client_key"></a>`client_key`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Unencrypted PEM private key for `client_cert`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--mesh--api_tries"></a>`api_tries`
+
+Data type: `Optional[Integer[1]]`
+
+Number of tries when contacting the Consul API.
+
+Default value: `undef`
+
+### <a name="consul--config_entry--service_defaults"></a>`consul::config_entry::service_defaults`
+
+Sets the defaults of a service. The `destination` block registers an external service that is
+reached through a terminating gateway; it needs the proxy of the calling service to run in
+transparent mode (`mode => transparent`).
+
+#### Examples
+
+#####
+
+```puppet
+consul::config_entry::service_defaults { 'db.example.org':
+  protocol    => 'tcp',
+  mode        => 'transparent',
+  destination => { 'Addresses' => ['db.example.org'], 'Port' => 5432 },
+}
+```
+
+#### Parameters
+
+The following parameters are available in the `consul::config_entry::service_defaults` defined type:
+
+* [`service_protocol`](#-consul--config_entry--service_defaults--service_protocol)
+* [`mode`](#-consul--config_entry--service_defaults--mode)
+* [`destination`](#-consul--config_entry--service_defaults--destination)
+* [`ensure`](#-consul--config_entry--service_defaults--ensure)
+* [`meta`](#-consul--config_entry--service_defaults--meta)
+* [`acl_api_token`](#-consul--config_entry--service_defaults--acl_api_token)
+* [`protocol`](#-consul--config_entry--service_defaults--protocol)
+* [`hostname`](#-consul--config_entry--service_defaults--hostname)
+* [`port`](#-consul--config_entry--service_defaults--port)
+* [`ca_file`](#-consul--config_entry--service_defaults--ca_file)
+* [`ca_path`](#-consul--config_entry--service_defaults--ca_path)
+* [`client_cert`](#-consul--config_entry--service_defaults--client_cert)
+* [`client_key`](#-consul--config_entry--service_defaults--client_key)
+* [`api_tries`](#-consul--config_entry--service_defaults--api_tries)
+
+##### <a name="-consul--config_entry--service_defaults--service_protocol"></a>`service_protocol`
+
+Data type: `Optional[Enum['tcp', 'http', 'http2', 'grpc']]`
+
+Protocol of the service. Not to be confused with `protocol`, which is the protocol of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_defaults--mode"></a>`mode`
+
+Data type: `Optional[Enum['direct', 'transparent']]`
+
+Proxy mode of the service.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_defaults--destination"></a>`destination`
+
+Data type: `Optional[Consul::Config_entry::Destination]`
+
+External destination reached through a terminating gateway.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_defaults--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+Whether the config entry should exist.
+
+Default value: `'present'`
+
+##### <a name="-consul--config_entry--service_defaults--meta"></a>`meta`
+
+Data type: `Optional[Hash[String[1], String]]`
+
+Metadata stored with the config entry.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_defaults--acl_api_token"></a>`acl_api_token`
+
+Data type: `Optional[String]`
+
+Token for accessing the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_defaults--protocol"></a>`protocol`
+
+Data type: `Optional[Enum['http', 'https']]`
+
+Protocol of the Consul API, `http` or `https`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_defaults--hostname"></a>`hostname`
+
+Data type: `Optional[String[1]]`
+
+Hostname of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_defaults--port"></a>`port`
+
+Data type: `Optional[Stdlib::Port]`
+
+Port of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_defaults--ca_file"></a>`ca_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM CA bundle used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_defaults--ca_path"></a>`ca_path`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+OpenSSL hashed CA directory used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_defaults--client_cert"></a>`client_cert`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM client certificate for mutual TLS.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_defaults--client_key"></a>`client_key`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Unencrypted PEM private key for `client_cert`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_defaults--api_tries"></a>`api_tries`
+
+Data type: `Optional[Integer[1]]`
+
+Number of tries when contacting the Consul API.
+
+Default value: `undef`
+
+### <a name="consul--config_entry--service_intentions"></a>`consul::config_entry::service_intentions`
+
+The title is the destination service (or `*`). Sources are validated with
+`Consul::Config_entry::Intention_source`: an L4 `Action` or L7 `Permissions` per source.
+Consul sorts sources by precedence, so their order is ignored when comparing.
+There has to be exactly one owner of the intentions of a destination: this resource replaces
+all sources of the entry.
+
+#### Examples
+
+#####
+
+```puppet
+consul::config_entry::service_intentions { 'web':
+  sources => [
+    { 'Name' => 'api', 'Action' => 'allow' },
+    { 'Name' => '*', 'Action' => 'deny' },
+  ],
+}
+```
+
+#### Parameters
+
+The following parameters are available in the `consul::config_entry::service_intentions` defined type:
+
+* [`sources`](#-consul--config_entry--service_intentions--sources)
+* [`ensure`](#-consul--config_entry--service_intentions--ensure)
+* [`meta`](#-consul--config_entry--service_intentions--meta)
+* [`acl_api_token`](#-consul--config_entry--service_intentions--acl_api_token)
+* [`protocol`](#-consul--config_entry--service_intentions--protocol)
+* [`hostname`](#-consul--config_entry--service_intentions--hostname)
+* [`port`](#-consul--config_entry--service_intentions--port)
+* [`ca_file`](#-consul--config_entry--service_intentions--ca_file)
+* [`ca_path`](#-consul--config_entry--service_intentions--ca_path)
+* [`client_cert`](#-consul--config_entry--service_intentions--client_cert)
+* [`client_key`](#-consul--config_entry--service_intentions--client_key)
+* [`api_tries`](#-consul--config_entry--service_intentions--api_tries)
+
+##### <a name="-consul--config_entry--service_intentions--sources"></a>`sources`
+
+Data type: `Array[Consul::Config_entry::Intention_source, 1]`
+
+Services that may (or may not) connect to the destination.
+
+##### <a name="-consul--config_entry--service_intentions--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+Whether the config entry should exist.
+
+Default value: `'present'`
+
+##### <a name="-consul--config_entry--service_intentions--meta"></a>`meta`
+
+Data type: `Optional[Hash[String[1], String]]`
+
+Metadata stored with the config entry.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_intentions--acl_api_token"></a>`acl_api_token`
+
+Data type: `Optional[String]`
+
+Token for accessing the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_intentions--protocol"></a>`protocol`
+
+Data type: `Optional[Enum['http', 'https']]`
+
+Protocol of the Consul API, `http` or `https`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_intentions--hostname"></a>`hostname`
+
+Data type: `Optional[String[1]]`
+
+Hostname of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_intentions--port"></a>`port`
+
+Data type: `Optional[Stdlib::Port]`
+
+Port of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_intentions--ca_file"></a>`ca_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM CA bundle used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_intentions--ca_path"></a>`ca_path`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+OpenSSL hashed CA directory used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_intentions--client_cert"></a>`client_cert`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM client certificate for mutual TLS.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_intentions--client_key"></a>`client_key`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Unencrypted PEM private key for `client_cert`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_intentions--api_tries"></a>`api_tries`
+
+Data type: `Optional[Integer[1]]`
+
+Number of tries when contacting the Consul API.
+
+Default value: `undef`
+
+### <a name="consul--config_entry--tcp_route"></a>`consul::config_entry::tcp_route`
+
+Routes the traffic of a `tcp` listener of an API gateway to a service.
+
+#### Examples
+
+#####
+
+```puppet
+consul::config_entry::tcp_route { 'vault':
+  parents  => [{ 'Kind' => 'api-gateway', 'Name' => 'agw', 'SectionName' => 'vault' }],
+  services => [{ 'Name' => 'vault' }],
+}
+```
+
+#### Parameters
+
+The following parameters are available in the `consul::config_entry::tcp_route` defined type:
+
+* [`parents`](#-consul--config_entry--tcp_route--parents)
+* [`services`](#-consul--config_entry--tcp_route--services)
+* [`ensure`](#-consul--config_entry--tcp_route--ensure)
+* [`meta`](#-consul--config_entry--tcp_route--meta)
+* [`acl_api_token`](#-consul--config_entry--tcp_route--acl_api_token)
+* [`protocol`](#-consul--config_entry--tcp_route--protocol)
+* [`hostname`](#-consul--config_entry--tcp_route--hostname)
+* [`port`](#-consul--config_entry--tcp_route--port)
+* [`ca_file`](#-consul--config_entry--tcp_route--ca_file)
+* [`ca_path`](#-consul--config_entry--tcp_route--ca_path)
+* [`client_cert`](#-consul--config_entry--tcp_route--client_cert)
+* [`client_key`](#-consul--config_entry--tcp_route--client_key)
+* [`api_tries`](#-consul--config_entry--tcp_route--api_tries)
+
+##### <a name="-consul--config_entry--tcp_route--parents"></a>`parents`
+
+Data type: `Array[Consul::Config_entry::Parent_ref, 1]`
+
+API gateways (and optionally listeners) the route attaches to.
+
+##### <a name="-consul--config_entry--tcp_route--services"></a>`services`
+
+Data type: `Array[Consul::Config_entry::Tcp_route_service, 1, 1]`
+
+Service to route to. Consul supports a single service per tcp-route.
+
+##### <a name="-consul--config_entry--tcp_route--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+Whether the config entry should exist.
+
+Default value: `'present'`
+
+##### <a name="-consul--config_entry--tcp_route--meta"></a>`meta`
+
+Data type: `Optional[Hash[String[1], String]]`
+
+Metadata stored with the config entry.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--tcp_route--acl_api_token"></a>`acl_api_token`
+
+Data type: `Optional[String]`
+
+Token for accessing the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--tcp_route--protocol"></a>`protocol`
+
+Data type: `Optional[Enum['http', 'https']]`
+
+Protocol of the Consul API, `http` or `https`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--tcp_route--hostname"></a>`hostname`
+
+Data type: `Optional[String[1]]`
+
+Hostname of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--tcp_route--port"></a>`port`
+
+Data type: `Optional[Stdlib::Port]`
+
+Port of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--tcp_route--ca_file"></a>`ca_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM CA bundle used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--tcp_route--ca_path"></a>`ca_path`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+OpenSSL hashed CA directory used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--tcp_route--client_cert"></a>`client_cert`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM client certificate for mutual TLS.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--tcp_route--client_key"></a>`client_key`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Unencrypted PEM private key for `client_cert`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--tcp_route--api_tries"></a>`api_tries`
+
+Data type: `Optional[Integer[1]]`
+
+Number of tries when contacting the Consul API.
+
+Default value: `undef`
+
+### <a name="consul--config_entry--terminating_gateway"></a>`consul::config_entry::terminating_gateway`
+
+Links external services (registered as `Destination` in `service-defaults`, see
+`consul::config_entry::service_defaults`) to a terminating gateway.
+Set either none or both of `CertFile` and `KeyFile` of a service.
+
+#### Examples
+
+#####
+
+```puppet
+consul::config_entry::terminating_gateway { 'tgw-private':
+  services => [{ 'Name' => 'db.example.org', 'CAFile' => '/etc/ssl/certs/ca.pem' }],
+}
+```
+
+#### Parameters
+
+The following parameters are available in the `consul::config_entry::terminating_gateway` defined type:
+
+* [`services`](#-consul--config_entry--terminating_gateway--services)
+* [`ensure`](#-consul--config_entry--terminating_gateway--ensure)
+* [`meta`](#-consul--config_entry--terminating_gateway--meta)
+* [`acl_api_token`](#-consul--config_entry--terminating_gateway--acl_api_token)
+* [`protocol`](#-consul--config_entry--terminating_gateway--protocol)
+* [`hostname`](#-consul--config_entry--terminating_gateway--hostname)
+* [`port`](#-consul--config_entry--terminating_gateway--port)
+* [`ca_file`](#-consul--config_entry--terminating_gateway--ca_file)
+* [`ca_path`](#-consul--config_entry--terminating_gateway--ca_path)
+* [`client_cert`](#-consul--config_entry--terminating_gateway--client_cert)
+* [`client_key`](#-consul--config_entry--terminating_gateway--client_key)
+* [`api_tries`](#-consul--config_entry--terminating_gateway--api_tries)
+
+##### <a name="-consul--config_entry--terminating_gateway--services"></a>`services`
+
+Data type: `Array[Consul::Config_entry::Terminating_gateway_service, 1]`
+
+Services linked to the gateway.
+
+##### <a name="-consul--config_entry--terminating_gateway--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+Whether the config entry should exist.
+
+Default value: `'present'`
+
+##### <a name="-consul--config_entry--terminating_gateway--meta"></a>`meta`
+
+Data type: `Optional[Hash[String[1], String]]`
+
+Metadata stored with the config entry.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--terminating_gateway--acl_api_token"></a>`acl_api_token`
+
+Data type: `Optional[String]`
+
+Token for accessing the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--terminating_gateway--protocol"></a>`protocol`
+
+Data type: `Optional[Enum['http', 'https']]`
+
+Protocol of the Consul API, `http` or `https`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--terminating_gateway--hostname"></a>`hostname`
+
+Data type: `Optional[String[1]]`
+
+Hostname of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--terminating_gateway--port"></a>`port`
+
+Data type: `Optional[Stdlib::Port]`
+
+Port of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--terminating_gateway--ca_file"></a>`ca_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM CA bundle used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--terminating_gateway--ca_path"></a>`ca_path`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+OpenSSL hashed CA directory used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--terminating_gateway--client_cert"></a>`client_cert`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM client certificate for mutual TLS.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--terminating_gateway--client_key"></a>`client_key`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Unencrypted PEM private key for `client_cert`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--terminating_gateway--api_tries"></a>`api_tries`
+
+Data type: `Optional[Integer[1]]`
+
+Number of tries when contacting the Consul API.
+
+Default value: `undef`
+
 ### <a name="consul--service"></a>`consul::service`
 
 Sets up a Consul service definition
@@ -1226,6 +2318,114 @@ Name of the token
 consul port
 
 Default value: `8500`
+
+### <a name="consul_config_entry"></a>`consul_config_entry`
+
+Manages a Consul config entry through the `/v1/config` API.
+
+The title is `<kind>/<name>`, e.g. `api-gateway/agw`. The `config` property is the raw Consul
+JSON of the entry (PascalCase keys, without `Kind` and `Name`) and is not validated here;
+use the `consul::config_entry::*` defined types for validated input.
+
+The entry is in sync when everything in `config` is present in Consul: fields set by Consul
+itself are ignored.
+
+#### Properties
+
+The following properties are available in the `consul_config_entry` type.
+
+##### `config`
+
+Raw Consul JSON of the entry, without `Kind` and `Name`
+
+##### `ensure`
+
+Valid values: `present`, `absent`
+
+The basic property that the resource should be in.
+
+Default value: `present`
+
+#### Parameters
+
+The following parameters are available in the `consul_config_entry` type.
+
+* [`acl_api_token`](#-consul_config_entry--acl_api_token)
+* [`api_tries`](#-consul_config_entry--api_tries)
+* [`ca_file`](#-consul_config_entry--ca_file)
+* [`ca_path`](#-consul_config_entry--ca_path)
+* [`client_cert`](#-consul_config_entry--client_cert)
+* [`client_key`](#-consul_config_entry--client_key)
+* [`hostname`](#-consul_config_entry--hostname)
+* [`kind`](#-consul_config_entry--kind)
+* [`name`](#-consul_config_entry--name)
+* [`port`](#-consul_config_entry--port)
+* [`protocol`](#-consul_config_entry--protocol)
+* [`unordered_keys`](#-consul_config_entry--unordered_keys)
+
+##### <a name="-consul_config_entry--acl_api_token"></a>`acl_api_token`
+
+Token for accessing the Consul API
+
+Default value: `''`
+
+##### <a name="-consul_config_entry--api_tries"></a>`api_tries`
+
+number of tries when contacting the Consul REST API
+
+Default value: `3`
+
+##### <a name="-consul_config_entry--ca_file"></a>`ca_file`
+
+Absolute path to a PEM CA bundle used to verify the Consul HTTPS server.
+
+##### <a name="-consul_config_entry--ca_path"></a>`ca_path`
+
+Absolute path to an OpenSSL hashed CA directory used to verify the Consul HTTPS server.
+
+##### <a name="-consul_config_entry--client_cert"></a>`client_cert`
+
+Absolute path to a PEM client certificate, optionally followed by intermediate certificates, for mutual TLS.
+
+##### <a name="-consul_config_entry--client_key"></a>`client_key`
+
+Absolute path to the unencrypted PEM private key for client_cert.
+
+##### <a name="-consul_config_entry--hostname"></a>`hostname`
+
+consul hostname
+
+Default value: `localhost`
+
+##### <a name="-consul_config_entry--kind"></a>`kind`
+
+Kind of the config entry, e.g. `api-gateway` or `service-defaults`
+
+##### <a name="-consul_config_entry--name"></a>`name`
+
+namevar
+
+Name of the config entry
+
+##### <a name="-consul_config_entry--port"></a>`port`
+
+consul port
+
+Default value: `8500`
+
+##### <a name="-consul_config_entry--protocol"></a>`protocol`
+
+Valid values: `http`, `https`
+
+consul protocol
+
+Default value: `http`
+
+##### <a name="-consul_config_entry--unordered_keys"></a>`unordered_keys`
+
+Keys holding arrays that are compared regardless of order, e.g. `Sources` as Consul sorts intentions by precedence
+
+Default value: `[]`
 
 ### <a name="consul_key_value"></a>`consul_key_value`
 
@@ -1776,6 +2976,195 @@ Data type: `HashOrArray`
 
 
 ## Data types
+
+### <a name="Consul--Config_entry--Api_gateway_listener"></a>`Consul::Config_entry::Api_gateway_listener`
+
+Listener of an `api-gateway` config entry.
+`tcp` listeners are used by `tcp-route`, the other protocols by `http-route`.
+
+Alias of
+
+```puppet
+Struct[{
+    'Name'                => Pattern[/\A[a-zA-Z0-9-]+\z/],
+    'Port'                => Integer[1, 65535],
+    'Protocol'            => Enum['tcp', 'http', 'http2', 'grpc'],
+    'Hostname'            => Optional[String[1]],
+    'MaxRequestHeadersKB' => Optional[Integer[1]],
+    'TLS'                 => Optional[Struct[{
+      'MinVersion'   => Optional[Enum['TLS_AUTO', 'TLSv1_0', 'TLSv1_1', 'TLSv1_2', 'TLSv1_3']],
+      'MaxVersion'   => Optional[Enum['TLS_AUTO', 'TLSv1_0', 'TLSv1_1', 'TLSv1_2', 'TLSv1_3']],
+      'CipherSuites' => Optional[Array[String[1]]],
+      # References to `file-system-certificate` (or `inline-certificate`) entries
+      'Certificates' => Optional[Array[Struct[{
+        'Kind' => Enum['file-system-certificate', 'inline-certificate'],
+        'Name' => String[1],
+      }]]],
+      # Mutually exclusive with Certificates
+      'SDS'          => Optional[Struct[{
+        'ClusterName'  => Optional[String[1]],
+        'CertResource' => String[1],
+      }]],
+    }]],
+  }]
+```
+
+### <a name="Consul--Config_entry--Destination"></a>`Consul::Config_entry::Destination`
+
+`Destination` block of a `service-defaults` config entry: an external service reached through a terminating gateway.
+Requires the service to be in transparent proxy mode. Wildcards are not supported.
+
+Alias of
+
+```puppet
+Struct[{
+    'Addresses' => Array[Pattern[/\A[^*]+\z/], 1],
+    'Port'      => Integer[1, 65535],
+  }]
+```
+
+### <a name="Consul--Config_entry--Http_route_rule"></a>`Consul::Config_entry::Http_route_rule`
+
+Rule of an `http-route` config entry: what to match, how to filter and where to send it.
+
+Alias of
+
+```puppet
+Struct[{
+    'Matches'         => Optional[Array[Struct[{
+      'Headers' => Optional[Array[Struct[{
+        'Name'   => String[1],
+        'Match'  => Enum['exact', 'prefix', 'suffix', 'regex', 'present'],
+        'Value'  => Optional[String],
+        'Invert' => Optional[Boolean],
+      }]]],
+      'Method'  => Optional[String[1]],
+      'Path'    => Optional[Struct[{
+        'Match' => Enum['exact', 'prefix', 'regex'],
+        'Value' => String[1],
+      }]],
+      'Query'   => Optional[Array[Struct[{
+        'Name'  => String[1],
+        'Match' => Enum['exact', 'present', 'regex'],
+        'Value' => Optional[String],
+      }]]],
+    }]]],
+    'Filters'         => Optional[Struct[{
+      'Headers'       => Optional[Array[Struct[{
+        'Add'    => Optional[Hash[String[1], String]],
+        'Set'    => Optional[Hash[String[1], String]],
+        'Remove' => Optional[Array[String[1]]],
+      }]]],
+      'URLRewrite'    => Optional[Struct[{ 'Path' => String }]],
+      'RetryFilter'   => Optional[Struct[{
+        'NumRetries'               => Optional[Integer[0]],
+        'RetryOnConnectionFailure' => Optional[Boolean],
+        'RetryOn'                  => Optional[Array[String[1]]],
+        'RetryOnStatusCodes'       => Optional[Array[Integer[100, 599]]],
+      }]],
+      'TimeoutFilter' => Optional[Struct[{
+        'IdleTimeout'    => Optional[Pattern[/\A\d+(\.\d+)?(ns|us|µs|ms|s|m|h)\z/]],
+        'RequestTimeout' => Optional[Pattern[/\A\d+(\.\d+)?(ns|us|µs|ms|s|m|h)\z/]],
+      }]],
+    }]],
+    'ResponseFilters' => Optional[Struct[{
+      'Headers' => Optional[Array[Struct[{
+        'Add'    => Optional[Hash[String[1], String]],
+        'Set'    => Optional[Hash[String[1], String]],
+        'Remove' => Optional[Array[String[1]]],
+      }]]],
+    }]],
+    'Services'        => Array[Struct[{
+      'Name'   => String[1],
+      'Weight' => Optional[Integer[0]],
+    }], 1],
+  }]
+```
+
+### <a name="Consul--Config_entry--Intention_source"></a>`Consul::Config_entry::Intention_source`
+
+Source of a `service-intentions` config entry: either an L4 `Action` or a list of L7 `Permissions`, never both.
+L7 permissions need the destination to use an http-based protocol and do not work with wildcard names.
+
+Alias of
+
+```puppet
+Variant[Struct[{
+    'Name'        => String[1],
+    'Action'      => Enum['allow', 'deny'],
+    'Description' => Optional[String],
+  }], Struct[{
+    'Name'        => String[1],
+    'Permissions' => Array[Struct[{
+      'Action' => Enum['allow', 'deny'],
+      'HTTP'   => Struct[{
+        # Set at most one of the path matchers
+        'PathExact'  => Optional[String[1]],
+        'PathPrefix' => Optional[String[1]],
+        'PathRegex'  => Optional[String[1]],
+        'Methods'    => Optional[Array[String[1]]],
+        'Header'     => Optional[Array[Struct[{
+          'Name'       => String[1],
+          'Present'    => Optional[Boolean],
+          'Exact'      => Optional[String],
+          'Prefix'     => Optional[String],
+          'Suffix'     => Optional[String],
+          'Contains'   => Optional[String],
+          'Regex'      => Optional[String],
+          'IgnoreCase' => Optional[Boolean],
+          'Invert'     => Optional[Boolean],
+        }]]],
+      }],
+    }], 1],
+    'Description' => Optional[String],
+  }]]
+```
+
+### <a name="Consul--Config_entry--Parent_ref"></a>`Consul::Config_entry::Parent_ref`
+
+Reference from a route to the API gateway (listener) it attaches to.
+Consul only supports `api-gateway` parents.
+
+Alias of
+
+```puppet
+Struct[{
+    'Kind'        => Enum['api-gateway'],
+    'Name'        => String[1],
+    # Bind to a single listener; all listeners of the gateway when omitted
+    'SectionName' => Optional[String[1]],
+  }]
+```
+
+### <a name="Consul--Config_entry--Tcp_route_service"></a>`Consul::Config_entry::Tcp_route_service`
+
+Service a `tcp-route` forwards to. Consul accepts at most one.
+
+Alias of
+
+```puppet
+Struct[{
+    'Name' => String[1],
+  }]
+```
+
+### <a name="Consul--Config_entry--Terminating_gateway_service"></a>`Consul::Config_entry::Terminating_gateway_service`
+
+Service linked to a `terminating-gateway` config entry.
+Set either none or both of CertFile and KeyFile; without CAFile, traffic to the destination is not encrypted.
+
+Alias of
+
+```puppet
+Struct[{
+    # `*` links all services
+    'Name'     => String[1],
+    'CAFile'   => Optional[Stdlib::Absolutepath],
+    'CertFile' => Optional[Stdlib::Absolutepath],
+    'KeyFile'  => Optional[Stdlib::Absolutepath],
+    'SNI'      => Optional[String[1]],
+  }]
+```
 
 ### <a name="Consul--PolicyStruct"></a>`Consul::PolicyStruct`
 

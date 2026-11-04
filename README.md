@@ -535,6 +535,63 @@ The optional parameters only need to be specified if you require changes from de
 - `hostname` {String} consul hostname. Defaults to `'localhost'`.
 - `api_tries` {Integer} number of tries when contacting the Consul REST API. Timeouts are not retried because a timeout already takes long. Defaults to `3`.
 
+## Config entries
+
+Consul config entries (the `/v1/config` API) are managed with the `consul_config_entry` type.
+The title is `<kind>/<name>` and `config` holds the raw Consul JSON of the entry (PascalCase, without `Kind` and `Name`).
+The entry is in sync when everything in `config` is present in Consul; fields that Consul adds itself are ignored.
+`unordered_keys` lists keys whose arrays are compared regardless of order.
+
+```puppet
+consul_config_entry { 'mesh/mesh':
+  config => { 'TransparentProxy' => { 'MeshDestinationsOnly' => true } },
+}
+```
+
+The raw type is not validated. For the common kinds there is a defined type that validates its input
+with Puppet data types (`Consul::Config_entry::*`) and takes snake_case parameters:
+
+| Kind | Defined type |
+|---|---|
+| `api-gateway` | `consul::config_entry::api_gateway` |
+| `tcp-route` | `consul::config_entry::tcp_route` |
+| `http-route` | `consul::config_entry::http_route` |
+| `file-system-certificate` | `consul::config_entry::file_system_certificate` |
+| `terminating-gateway` | `consul::config_entry::terminating_gateway` |
+| `service-defaults` | `consul::config_entry::service_defaults` |
+| `service-intentions` | `consul::config_entry::service_intentions` |
+| `mesh` | `consul::config_entry::mesh` |
+
+All of them accept the connection parameters `acl_api_token`, `protocol`, `hostname`, `port`, `api_tries`
+and the TLS parameters from [HTTPS with a private CA](#https-with-a-private-ca).
+
+```puppet
+consul::config_entry::api_gateway { 'agw':
+  listeners => [{ 'Name' => 'vault', 'Port' => 8200, 'Protocol' => 'tcp' }],
+}
+
+consul::config_entry::tcp_route { 'vault':
+  parents  => [{ 'Kind' => 'api-gateway', 'Name' => 'agw', 'SectionName' => 'vault' }],
+  services => [{ 'Name' => 'vault' }],
+}
+```
+
+### Service Intentions
+
+Intentions are managed per destination service with `consul::config_entry::service_intentions`.
+The resource manages the complete list of sources of the destination: sources not listed are removed.
+A source either has an L4 `Action` or L7 `Permissions`.
+
+```puppet
+consul::config_entry::service_intentions { 'web':
+  sources       => [
+    { 'Name' => 'api', 'Action' => 'allow' },
+    { 'Name' => '*', 'Action' => 'deny' },
+  ],
+  acl_api_token => 'e33653a6-0320-4a71-b3af-75f14578e3aa',
+}
+```
+
 ## Limitations
 
 Depends on the JSON gem, or a modern ruby. (Ruby 1.8.7 is not officially supported)
