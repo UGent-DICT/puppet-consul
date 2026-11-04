@@ -386,6 +386,22 @@ consul_token {'test_token':
 }
 ```
 
+Rules for the `service` and `service_prefix` resources accept an optional `intentions` key to grant intention permissions (`read`, `write` or `deny`):
+
+```puppet
+consul_policy {'web_intentions':
+  rules         => [
+    {
+      'resource'    => 'service',
+      'segment'     => 'web',
+      'disposition' => 'write',
+      'intentions'  => 'write',
+    },
+  ],
+  acl_api_token => 'e33653a6-0320-4a71-b3af-75f14578e3aa',
+}
+```
+
 Here is an example to automatically create a policy and token for each host.
 For development environments `acl_api_token` can be the bootstrap token. For production it should be a dedicated token with access to write/read from the acls.
 

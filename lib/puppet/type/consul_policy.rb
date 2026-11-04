@@ -52,6 +52,11 @@ Puppet::Type.newtype(:consul_policy) do
       raise ArgumentError, 'Policy rule resource must be a string' unless value['resource'].is_a?(String)
       raise ArgumentError, 'Policy rule segment must be a string' unless value['segment'].is_a?(String) || %w[acl operator keyring mesh peering].include?(value['resource'])
       raise ArgumentError, 'Policy rule disposition must be a string' unless value['disposition'].is_a?(String)
+
+      if value.key?('intentions')
+        raise ArgumentError, 'Policy rule intentions can only be set for service and service_prefix resources' unless %w[service service_prefix].include?(value['resource'])
+        raise ArgumentError, 'Policy rule intentions must be a string' unless value['intentions'].is_a?(String)
+      end
     end
 
     defaultto []

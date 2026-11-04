@@ -102,6 +102,58 @@ describe Puppet::Type.type(:consul_policy) do
     end.to raise_error(Puppet::Error, %r{Policy rule disposition must be a string})
   end
 
+  context 'with intentions' do
+    it 'passes for service and service_prefix resources' do
+      expect do
+        %w[service service_prefix].each do |resource|
+          Puppet::Type.type(:consul_policy).new(
+            name: 'testing',
+            rules: [
+              {
+                'resource' => resource,
+                'segment' => 'test_service',
+                'disposition' => 'read',
+                'intentions' => 'write',
+              },
+            ],
+          )
+        end
+      end.not_to raise_error
+    end
+
+    it 'fails for other resources' do
+      expect do
+        Puppet::Type.type(:consul_policy).new(
+          name: 'testing',
+          rules: [
+            {
+              'resource' => 'key_prefix',
+              'segment' => 'test_key',
+              'disposition' => 'read',
+              'intentions' => 'write',
+            },
+          ],
+        )
+      end.to raise_error(Puppet::Error, %r{Policy rule intentions can only be set for service and service_prefix resources})
+    end
+
+    it 'fails if intentions is not a string' do
+      expect do
+        Puppet::Type.type(:consul_policy).new(
+          name: 'testing',
+          rules: [
+            {
+              'resource' => 'service',
+              'segment' => 'test_service',
+              'disposition' => 'read',
+              'intentions' => [],
+            },
+          ],
+        )
+      end.to raise_error(Puppet::Error, %r{Policy rule intentions must be a string})
+    end
+  end
+
   context 'resource is acl, operator, keyring, mesh or peering' do
     it 'passes if rule segment is missing' do
       expect do
