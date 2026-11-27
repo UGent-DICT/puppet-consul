@@ -28,6 +28,7 @@
 * [`consul::config_entry::mesh`](#consul--config_entry--mesh): Manages the `mesh` Consul config entry
 * [`consul::config_entry::service_defaults`](#consul--config_entry--service_defaults): Manages a `service-defaults` Consul config entry
 * [`consul::config_entry::service_intentions`](#consul--config_entry--service_intentions): Manages a `service-intentions` Consul config entry
+* [`consul::config_entry::service_resolver`](#consul--config_entry--service_resolver): Manages a `service-resolver` Consul config entry
 * [`consul::config_entry::tcp_route`](#consul--config_entry--tcp_route): Manages a `tcp-route` Consul config entry
 * [`consul::config_entry::terminating_gateway`](#consul--config_entry--terminating_gateway): Manages a `terminating-gateway` Consul config entry
 * [`consul::service`](#consul--service): Sets up a Consul service definition
@@ -51,8 +52,10 @@
 
 * [`Consul::Config_entry::Api_gateway_listener`](#Consul--Config_entry--Api_gateway_listener): Listener of an `api-gateway` config entry. `tcp` listeners are used by `tcp-route`, the other protocols by `http-route`.
 * [`Consul::Config_entry::Destination`](#Consul--Config_entry--Destination): `Destination` block of a `service-defaults` config entry: an external service reached through a terminating gateway. Requires the service to
+* [`Consul::Config_entry::Duration`](#Consul--Config_entry--Duration): Duration as Consul reads it, for example `5s`, `500ms` or `1m30s`.
 * [`Consul::Config_entry::Http_route_rule`](#Consul--Config_entry--Http_route_rule): Rule of an `http-route` config entry: what to match, how to filter and where to send it.
 * [`Consul::Config_entry::Intention_source`](#Consul--Config_entry--Intention_source): Source of a `service-intentions` config entry: either an L4 `Action` or a list of L7 `Permissions`, never both. L7 permissions need the desti
+* [`Consul::Config_entry::Load_balancer`](#Consul--Config_entry--Load_balancer): `LoadBalancer` block of a `service-resolver` config entry. `HashPolicies` need the `ring_hash` or `maglev` policy, `RingHashConfig` the `ring
 * [`Consul::Config_entry::Parent_ref`](#Consul--Config_entry--Parent_ref): Reference from a route to the API gateway (listener) it attaches to. Consul only supports `api-gateway` parents.
 * [`Consul::Config_entry::Tcp_route_service`](#Consul--Config_entry--Tcp_route_service): Service a `tcp-route` forwards to. Consul accepts at most one.
 * [`Consul::Config_entry::Terminating_gateway_service`](#Consul--Config_entry--Terminating_gateway_service): Service linked to a `terminating-gateway` config entry. Set either none or both of CertFile and KeyFile; without CAFile, traffic to the desti
@@ -1656,6 +1659,223 @@ Number of tries when contacting the Consul API.
 
 Default value: `undef`
 
+### <a name="consul--config_entry--service_resolver"></a>`consul::config_entry::service_resolver`
+
+Decides which instances of a service a request goes to, and how the load is balanced over them.
+The title is the name of the service.
+
+A cookie hash policy gives sticky sessions for the clients of a service in the mesh, which a reverse proxy
+that sees one backend (such as Apache through a sidecar) cannot do itself. Hash policies need the `ring_hash`
+or `maglev` policy. The service has to use an L7 protocol in `service-defaults`
+(`consul::config_entry::service_defaults` with `service_protocol => 'http'`).
+
+#### Examples
+
+##### Sticky sessions with a generated cookie
+
+```puppet
+consul::config_entry::service_resolver { 'web':
+  load_balancer => {
+    'Policy'       => 'maglev',
+    'HashPolicies' => [{
+      'Field'        => 'cookie',
+      'FieldValue'   => 'ROUTEID',
+      'CookieConfig' => { 'TTL' => '1h', 'Path' => '/' },
+    }],
+  },
+}
+```
+
+#### Parameters
+
+The following parameters are available in the `consul::config_entry::service_resolver` defined type:
+
+* [`default_subset`](#-consul--config_entry--service_resolver--default_subset)
+* [`subsets`](#-consul--config_entry--service_resolver--subsets)
+* [`redirect`](#-consul--config_entry--service_resolver--redirect)
+* [`failover`](#-consul--config_entry--service_resolver--failover)
+* [`connect_timeout`](#-consul--config_entry--service_resolver--connect_timeout)
+* [`request_timeout`](#-consul--config_entry--service_resolver--request_timeout)
+* [`load_balancer`](#-consul--config_entry--service_resolver--load_balancer)
+* [`ensure`](#-consul--config_entry--service_resolver--ensure)
+* [`meta`](#-consul--config_entry--service_resolver--meta)
+* [`acl_api_token`](#-consul--config_entry--service_resolver--acl_api_token)
+* [`protocol`](#-consul--config_entry--service_resolver--protocol)
+* [`hostname`](#-consul--config_entry--service_resolver--hostname)
+* [`port`](#-consul--config_entry--service_resolver--port)
+* [`ca_file`](#-consul--config_entry--service_resolver--ca_file)
+* [`ca_path`](#-consul--config_entry--service_resolver--ca_path)
+* [`client_cert`](#-consul--config_entry--service_resolver--client_cert)
+* [`client_key`](#-consul--config_entry--service_resolver--client_key)
+* [`api_tries`](#-consul--config_entry--service_resolver--api_tries)
+
+##### <a name="-consul--config_entry--service_resolver--default_subset"></a>`default_subset`
+
+Data type: `Optional[String[1]]`
+
+Subset to use when none is requested. Must be a key of `subsets`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--subsets"></a>`subsets`
+
+Data type:
+
+```puppet
+Optional[Hash[String[1], Struct[{
+    'Filter'      => Optional[String[1]],
+    'OnlyPassing' => Optional[Boolean],
+  }]]]
+```
+
+Named subsets of the service, each with a `Filter` expression and `OnlyPassing`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--redirect"></a>`redirect`
+
+Data type:
+
+```puppet
+Optional[Struct[{
+    'Service'       => Optional[String[1]],
+    'ServiceSubset' => Optional[String[1]],
+    'Datacenter'    => Optional[String[1]],
+  }]]
+```
+
+Send all requests to another service or subset.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--failover"></a>`failover`
+
+Data type:
+
+```puppet
+Optional[Hash[String[1], Struct[{
+    'Service'       => Optional[String[1]],
+    'ServiceSubset' => Optional[String[1]],
+    'Datacenters'   => Optional[Array[String[1]]],
+  }]]]
+```
+
+Where to send requests when no instance is healthy, per subset (`*` for all).
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--connect_timeout"></a>`connect_timeout`
+
+Data type: `Optional[Consul::Config_entry::Duration]`
+
+Timeout for new connections to an instance.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--request_timeout"></a>`request_timeout`
+
+Data type: `Optional[Consul::Config_entry::Duration]`
+
+Timeout of a request, from the moment it is sent. Only for L7 protocols.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--load_balancer"></a>`load_balancer`
+
+Data type: `Optional[Consul::Config_entry::Load_balancer]`
+
+Load balancing policy and hash policies.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+Whether the config entry should exist.
+
+Default value: `'present'`
+
+##### <a name="-consul--config_entry--service_resolver--meta"></a>`meta`
+
+Data type: `Optional[Hash[String[1], String]]`
+
+Metadata stored with the config entry.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--acl_api_token"></a>`acl_api_token`
+
+Data type: `Optional[String]`
+
+Token for accessing the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--protocol"></a>`protocol`
+
+Data type: `Optional[Enum['http', 'https']]`
+
+Protocol of the Consul API, `http` or `https`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--hostname"></a>`hostname`
+
+Data type: `Optional[String[1]]`
+
+Hostname of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--port"></a>`port`
+
+Data type: `Optional[Stdlib::Port]`
+
+Port of the Consul API.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--ca_file"></a>`ca_file`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM CA bundle used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--ca_path"></a>`ca_path`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+OpenSSL hashed CA directory used to verify the Consul HTTPS server.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--client_cert"></a>`client_cert`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+PEM client certificate for mutual TLS.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--client_key"></a>`client_key`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+Unencrypted PEM private key for `client_cert`.
+
+Default value: `undef`
+
+##### <a name="-consul--config_entry--service_resolver--api_tries"></a>`api_tries`
+
+Data type: `Optional[Integer[1]]`
+
+Number of tries when contacting the Consul API.
+
+Default value: `undef`
+
 ### <a name="consul--config_entry--tcp_route"></a>`consul::config_entry::tcp_route`
 
 Routes the traffic of a `tcp` listener of an API gateway to a service.
@@ -3023,6 +3243,12 @@ Struct[{
   }]
 ```
 
+### <a name="Consul--Config_entry--Duration"></a>`Consul::Config_entry::Duration`
+
+Duration as Consul reads it, for example `5s`, `500ms` or `1m30s`.
+
+Alias of `Pattern[/\A(\d+(\.\d+)?(ns|us|µs|ms|s|m|h))+\z/]`
+
 ### <a name="Consul--Config_entry--Http_route_rule"></a>`Consul::Config_entry::Http_route_rule`
 
 Rule of an `http-route` config entry: what to match, how to filter and where to send it.
@@ -3118,6 +3344,40 @@ Variant[Struct[{
     }], 1],
     'Description' => Optional[String],
   }]]
+```
+
+### <a name="Consul--Config_entry--Load_balancer"></a>`Consul::Config_entry::Load_balancer`
+
+`LoadBalancer` block of a `service-resolver` config entry.
+`HashPolicies` need the `ring_hash` or `maglev` policy, `RingHashConfig` the `ring_hash` policy and
+`LeastRequestConfig` the `least_request` policy.
+
+Alias of
+
+```puppet
+Struct[{
+    'Policy'             => Optional[Enum['random', 'round_robin', 'least_request', 'ring_hash', 'maglev']],
+    'RingHashConfig'     => Optional[Struct[{
+      'MinimumRingSize' => Optional[Integer[1]],
+      'MaximumRingSize' => Optional[Integer[1]],
+    }]],
+    'LeastRequestConfig' => Optional[Struct[{
+      'ChoiceCount' => Optional[Integer[1]],
+    }]],
+    'HashPolicies'       => Optional[Array[Struct[{
+      'Field'        => Optional[Enum['header', 'cookie', 'query_parameter']],
+      # Name of the header, cookie or query parameter named in `Field`
+      'FieldValue'   => Optional[String[1]],
+      # With `Field => cookie`: the cookie is generated when the request has none. Set `TTL` or `Session`, not both.
+      'CookieConfig' => Optional[Struct[{
+        'Session' => Optional[Boolean],
+        'TTL'     => Optional[Consul::Config_entry::Duration],
+        'Path'    => Optional[String[1]],
+      }]],
+      'SourceIP'     => Optional[Boolean],
+      'Terminal'     => Optional[Boolean],
+    }], 1]],
+  }]
 ```
 
 ### <a name="Consul--Config_entry--Parent_ref"></a>`Consul::Config_entry::Parent_ref`

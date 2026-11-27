@@ -560,6 +560,7 @@ with Puppet data types (`Consul::Config_entry::*`) and takes snake_case paramete
 | `terminating-gateway` | `consul::config_entry::terminating_gateway` |
 | `service-defaults` | `consul::config_entry::service_defaults` |
 | `service-intentions` | `consul::config_entry::service_intentions` |
+| `service-resolver` | `consul::config_entry::service_resolver` |
 | `mesh` | `consul::config_entry::mesh` |
 
 All of them accept the connection parameters `acl_api_token`, `protocol`, `hostname`, `port`, `api_tries`
@@ -589,6 +590,26 @@ consul::config_entry::service_intentions { 'web':
     { 'Name' => '*', 'Action' => 'deny' },
   ],
   acl_api_token => 'e33653a6-0320-4a71-b3af-75f14578e3aa',
+}
+```
+
+### Service Resolvers
+
+`consul::config_entry::service_resolver` decides which instances of a service a request goes to.
+A cookie hash policy gives sticky sessions for the clients of a service in the mesh.
+Hash policies need the `ring_hash` or `maglev` policy, and the service needs an L7 protocol in
+`consul::config_entry::service_defaults` (`service_protocol => 'http'`).
+
+```puppet
+consul::config_entry::service_resolver { 'web':
+  load_balancer => {
+    'Policy'       => 'maglev',
+    'HashPolicies' => [{
+      'Field'        => 'cookie',
+      'FieldValue'   => 'ROUTEID',
+      'CookieConfig' => { 'TTL' => '1h', 'Path' => '/' },
+    }],
+  },
 }
 ```
 
